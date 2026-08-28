@@ -46,18 +46,18 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
       </CardHeader>
       <CardContent className="space-y-4 pt-1">
         {/* Donut Chart */}
-        <div className="h-44 relative flex items-center justify-center">
+        <div className="h-48 w-full relative flex items-center justify-center">
           {!mounted ? (
             <div className="h-36 w-36 rounded-full border-4 border-muted animate-pulse" />
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={190}>
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
+                  innerRadius={52}
+                  outerRadius={78}
                   paddingAngle={2}
                   dataKey="value"
                   onMouseEnter={(_, index) => setActiveIndex(index)}
@@ -78,7 +78,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
                     if (!active || !payload?.length) return null;
                     const item = payload[0].payload as AllocationData;
                     return (
-                      <div className="rounded-lg border bg-popover text-popover-foreground px-3 py-2 shadow-lg text-xs">
+                      <div className="rounded-lg border bg-popover text-popover-foreground px-3 py-2 shadow-lg text-xs z-50">
                         <p className="font-bold flex items-center gap-1.5">
                           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
                           {item.symbol}
@@ -98,8 +98,8 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
 
           {/* Center stats */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-            <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Total</span>
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">TOTAL</span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-foreground">
               {formatCurrency(totalPortfolioValue, baseCurrency)}
             </span>
           </div>

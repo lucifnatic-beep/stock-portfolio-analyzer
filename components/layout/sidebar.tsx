@@ -101,11 +101,11 @@ export function Sidebar() {
                   variant={isActive ? 'secondary' : 'ghost'}
                   className={cn(
                     'w-full transition-all text-xs font-medium',
-                    sidebarOpen ? 'justify-start gap-2.5 px-3' : 'lg:justify-center lg:px-0 lg:h-10 lg:w-10 lg:mx-auto'
+                    sidebarOpen ? 'justify-start gap-2.5 px-3' : 'justify-center px-0 h-10 w-10 mx-auto'
                   )}
                 >
                   <item.icon className="h-4 w-4 shrink-0 text-indigo-400" />
-                  <span>{t(item.labelKey)}</span>
+                  {sidebarOpen && <span className="truncate">{t(item.labelKey)}</span>}
                 </Button>
               </Link>
             );
@@ -119,13 +119,13 @@ export function Sidebar() {
             size="sm"
             className={cn(
               'w-full text-xs text-muted-foreground hover:text-foreground',
-              sidebarOpen ? 'justify-start gap-2 px-3' : 'lg:justify-center lg:px-0 lg:h-8 lg:w-8 lg:mx-auto'
+              sidebarOpen ? 'justify-start gap-2 px-3' : 'justify-center px-0 h-8 w-8 mx-auto'
             )}
             onClick={handleExport}
             title={!sidebarOpen ? t('common.exportJSON') : undefined}
           >
             <FileDown className="h-4 w-4 shrink-0" />
-            <span>{t('common.exportJSON')}</span>
+            {sidebarOpen && <span>{t('common.exportJSON')}</span>}
           </Button>
 
           <Button
@@ -133,13 +133,13 @@ export function Sidebar() {
             size="sm"
             className={cn(
               'w-full text-xs text-muted-foreground hover:text-foreground',
-              sidebarOpen ? 'justify-start gap-2 px-3' : 'lg:justify-center lg:px-0 lg:h-8 lg:w-8 lg:mx-auto'
+              sidebarOpen ? 'justify-start gap-2 px-3' : 'justify-center px-0 h-8 w-8 mx-auto'
             )}
             onClick={handleImport}
             title={!sidebarOpen ? t('common.importJSON') : undefined}
           >
             <FileUp className="h-4 w-4 shrink-0" />
-            <span>{t('common.importJSON')}</span>
+            {sidebarOpen && <span>{t('common.importJSON')}</span>}
           </Button>
 
           {/* Toggle Collapse Button - desktop only */}

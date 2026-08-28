@@ -22,7 +22,7 @@ export function HoldingsTable({ positions }: Props) {
 
   const handleDelete = async (id: number | undefined) => {
     if (!id) return;
-    if (confirm('Sigur doriți să ștergeți această poziție?')) {
+    if (confirm('Are you sure you want to remove this position?')) {
       await db.positions.delete(id);
     }
   };
@@ -58,11 +58,11 @@ export function HoldingsTable({ positions }: Props) {
         <div className="flex items-center gap-2">
           <CardTitle className="text-base font-semibold">{t('portfolio.positions')}</CardTitle>
           <Badge variant="outline" className="text-[11px] font-mono">
-            {positions.length} dețineri
+            {positions.length} holdings
           </Badge>
         </div>
         <span className="text-xs text-muted-foreground">
-          Afișat în: <strong className="text-foreground">{baseCurrency}</strong>
+          Displayed in: <strong className="text-foreground">{baseCurrency}</strong>
         </span>
       </CardHeader>
       <CardContent className="p-0">
@@ -70,16 +70,16 @@ export function HoldingsTable({ positions }: Props) {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border/50 text-muted-foreground bg-muted/10 font-medium">
-                <th className="text-left py-3 px-3">Activ & Simbol</th>
+                <th className="text-left py-3 px-3">Asset & Symbol</th>
                 {activeBroker === 'all' && (
                   <th className="text-left py-3 px-2">Broker</th>
                 )}
-                <th className="text-right py-3 px-2">Cantitate</th>
-                <th className="text-right py-3 px-2">Cost Mediu</th>
-                <th className="text-right py-3 px-2">Preț Curent</th>
-                <th className="text-right py-3 px-2">Valoare Piață</th>
-                <th className="text-right py-3 px-3">Câștig / Pierdere</th>
-                <th className="text-right py-3 px-2">Variație Zi</th>
+                <th className="text-right py-3 px-2">Shares</th>
+                <th className="text-right py-3 px-2">Avg Cost</th>
+                <th className="text-right py-3 px-2">Current Price</th>
+                <th className="text-right py-3 px-2">Market Value</th>
+                <th className="text-right py-3 px-3">P&L</th>
+                <th className="text-right py-3 px-2">Day Change</th>
                 <th className="py-3 px-2 text-center"></th>
               </tr>
             </thead>

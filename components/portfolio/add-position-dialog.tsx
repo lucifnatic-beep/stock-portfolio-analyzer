@@ -29,7 +29,7 @@ export function AddPositionDialog() {
   const [shares, setShares] = useState('');
   const [buyPrice, setBuyPrice] = useState('');
   const [buyDate, setBuyDate] = useState(new Date().toISOString().split('T')[0]);
-  const [currency, setCurrency] = useState('RON');
+  const [currency, setCurrency] = useState('USD');
   const [broker, setBroker] = useState(activeBroker === 'all' ? 'bcr' : activeBroker);
   const [exchange, setExchange] = useState('');
   const [notes, setNotes] = useState('');

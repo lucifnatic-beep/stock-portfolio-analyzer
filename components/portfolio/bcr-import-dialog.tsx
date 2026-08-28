@@ -101,7 +101,7 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
     <>
       <Button variant="outline" onClick={() => setOpen(true)} className="gap-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
         <Landmark className="h-4 w-4" />
-        Importă BCR Broker
+        Import BCR Broker
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -109,22 +109,22 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Landmark className="h-5 w-5 text-amber-500" />
-              Importă Raport BCR Broker (BVB)
+              Import BCR Broker Report (BVB)
             </DialogTitle>
             <DialogDescription>
-              Lipește textul extras din raportul de transferuri sau portofoliu de la BCR Broker pentru a încărca acțiunile BVB și soldul de numerar.
+              Paste the text extracted from your BCR Broker report to load your BVB holdings and cash balance.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-1">
-                Lipește raportul / extrasul BCR Broker aici
+                Paste BCR Broker statement text here
               </label>
               <textarea
                 rows={5}
                 className="w-full rounded-md border bg-transparent p-2 text-xs font-mono outline-none focus:ring-1 focus:ring-ring"
-                placeholder="Lipește textul raportului BCR..."
+                placeholder="Paste BCR report text here..."
                 value={reportText}
                 onChange={(e) => handleParse(e.target.value)}
               />
@@ -140,7 +140,7 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
             {success && (
               <div className="flex items-center gap-2 text-xs text-emerald-500 bg-emerald-500/10 p-2.5 rounded-md">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <span>Pozițiile BCR Broker au fost importate cu succes!</span>
+                <span>BCR Broker positions imported successfully!</span>
               </div>
             )}
 
@@ -148,10 +148,10 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Poziții BVB Detectate ({parsedResult.positions.length})
+                    Detected Holdings ({parsedResult.positions.length})
                   </h4>
                   <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-500 border-amber-500/30">
-                    Sold Cash: {formatCurrency(parsedResult.cash, 'RON')}
+                    Cash Balance: {formatCurrency(parsedResult.cash, 'USD')}
                   </Badge>
                 </div>
 
@@ -159,10 +159,10 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
                   <table className="w-full text-xs">
                     <thead className="bg-muted text-muted-foreground sticky top-0">
                       <tr>
-                        <th className="py-2 px-3 text-left">Simbol</th>
-                        <th className="py-2 px-3 text-left">Nume Companie</th>
-                        <th className="py-2 px-3 text-right">Acțiuni</th>
-                        <th className="py-2 px-3 text-right">Preț Estimativ</th>
+                        <th className="py-2 px-3 text-left">Symbol</th>
+                        <th className="py-2 px-3 text-left">Company</th>
+                        <th className="py-2 px-3 text-right">Shares</th>
+                        <th className="py-2 px-3 text-right">Est. Price</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -183,7 +183,7 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Anulează
+              Cancel
             </Button>
             <Button
               onClick={handleConfirmImport}
@@ -191,7 +191,7 @@ export function BCRImportDialog({ onImportSuccess }: { onImportSuccess?: () => v
               className="gap-2 bg-amber-500 hover:bg-amber-600 text-white"
             >
               <CheckCircle2 className="h-4 w-4" />
-              Confirmă Importul ({parsedResult?.positions.length || 0} Acțiuni)
+              Confirm Import ({parsedResult?.positions.length || 0} Holdings)
             </Button>
           </DialogFooter>
         </DialogContent>

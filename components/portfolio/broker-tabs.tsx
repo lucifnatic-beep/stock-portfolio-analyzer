@@ -99,7 +99,7 @@ export function BrokerTabs() {
             className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>Broker nou</span>
+            <span>New Broker</span>
           </Button>
         </div>
 
@@ -107,9 +107,9 @@ export function BrokerTabs() {
         {activeBroker !== 'all' && currentBroker && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-card rounded-lg border text-xs">
             <Wallet className="h-3.5 w-3.5 text-amber-500" />
-            <span className="text-muted-foreground">Cash Disponibil ({currentBroker.name}):</span>
-            <span className="font-bold text-foreground">
-              {formatCurrency(currentBroker.cash || 0, currentBroker.cashCurrency || 'RON')}
+            <span className="text-muted-foreground">Available Cash ({currentBroker.name}):</span>
+            <span className="font-bold text-foreground font-mono">
+              {formatCurrency(currentBroker.cash || 0, currentBroker.cashCurrency || baseCurrency)}
             </span>
             <Button
               variant="ghost"
@@ -119,7 +119,7 @@ export function BrokerTabs() {
                 setEditCashValue((currentBroker.cash || 0).toString());
                 setEditCashOpen(true);
               }}
-              title="Modifică soldul de numerar"
+              title="Edit cash balance"
             >
               <Edit2 className="h-3 w-3" />
             </Button>
@@ -133,26 +133,26 @@ export function BrokerTabs() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-blue-500" />
-              Adaugă Broker / Portofoliu
+              Add Broker / Portfolio
             </DialogTitle>
             <DialogDescription>
-              Creează un tab separat pentru un nou cont de tranzacționare (ex: XTB, TradeVille, Interactive Brokers).
+              Create a separate tab for a new brokerage account (e.g., Charles Schwab, Interactive Brokers, XTB).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-1">
-                Nume Broker / Cont
+                Broker / Account Name
               </label>
               <Input
-                placeholder="ex: XTB, TradeVille, IBKR"
+                placeholder="e.g., Charles Schwab, IBKR, Fidelity"
                 value={newBrokerName}
                 onChange={(e) => setNewBrokerName(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-1">
-                Sold Numerar Inițial (RON)
+                Initial Cash Balance ({baseCurrency})
               </label>
               <Input
                 type="number"
@@ -165,10 +165,10 @@ export function BrokerTabs() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)}>
-              Anulează
+              Cancel
             </Button>
             <Button onClick={handleAddBroker} disabled={!newBrokerName.trim()}>
-              Salvează Broker
+              Save Broker
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -180,16 +180,16 @@ export function BrokerTabs() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-amber-500" />
-              Sold Numerar — {currentBroker?.name}
+              Cash Balance — {currentBroker?.name}
             </DialogTitle>
             <DialogDescription>
-              Actualizează suma de bani neinvestită (cash disponibil) din acest cont de brokeraj.
+              Update uninvested cash balance for this brokerage account.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-1">
-                Sold Numerar ({currentBroker?.cashCurrency || 'RON'})
+                Cash Balance ({currentBroker?.cashCurrency || baseCurrency})
               </label>
               <Input
                 type="number"
@@ -201,10 +201,10 @@ export function BrokerTabs() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditCashOpen(false)}>
-              Anulează
+              Cancel
             </Button>
             <Button onClick={handleUpdateCash}>
-              Salvează
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>

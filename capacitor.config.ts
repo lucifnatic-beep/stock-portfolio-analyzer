@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'StockPulse AI',
   webDir: 'out',
   server: {
-    url: 'https://stock-portfolio-analyzer-djgd.vercel.app',
+    url: 'https://stock-portfolio-analyzer-git-main-iesimdincasa-5231s-projects.vercel.app',
     cleartext: true,
   },
   android: {

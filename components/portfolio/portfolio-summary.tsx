@@ -22,18 +22,18 @@ export function PortfolioSummary({ summary, currency = 'RON' }: Props) {
 
   const cards = [
     {
-      title: hasCash ? 'Valoare Totală (cu Cash)' : t('portfolio.totalValue'),
+      title: hasCash ? 'Total Value (with Cash)' : t('portfolio.totalValue'),
       value: formatCurrency(displayTotal, currency),
-      subtitle: hasCash ? `Acțiuni: ${formatCurrency(summary.totalValue, currency)}` : undefined,
+      subtitle: hasCash ? `Holdings: ${formatCurrency(summary.totalValue, currency)}` : undefined,
       icon: Wallet,
       color: 'text-blue-500',
     },
     ...(hasCash
       ? [
           {
-            title: 'Numerar / Cash Disponibil',
+            title: 'Available Cash',
             value: formatCurrency(summary.cashBalance || 0, currency),
-            subtitle: 'Neinvestit',
+            subtitle: 'Uninvested',
             icon: Coins,
             color: 'text-amber-500',
           },
