@@ -98,11 +98,21 @@ export default function StockPage() {
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
+            title="Go back"
+            className="cursor-pointer"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{symbol}</h1>

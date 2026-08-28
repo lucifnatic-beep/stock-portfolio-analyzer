@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { PieChart as PieIcon } from 'lucide-react';
+import { PieChart as PieIcon, Layers, Building2, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
@@ -21,30 +21,105 @@ interface Props {
   currency?: string;
 }
 
-export function AllocationChart({ data, currency = 'RON' }: Props) {
+export function AllocationChart({ data, currency = 'USD' }: Props) {
   const { locale, baseCurrency } = useAppStore();
   const t = useTranslation(locale);
+  const [viewMode, setViewMode] = useState<'assets' | 'markets'>('assets');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
+  const totalPortfolioValue = useMemo(() => {
+    return data.reduce((acc, curr) => acc + curr.value, 0);
+  }, [data]);
+
+  // Market classification: US, BVB Romania, Europe
+  const marketData = useMemo(() => {
+    let usTotal = 0;
+    let bvbTotal = 0;
+    let euTotal = 0;
+
+    data.forEach((item) => {
+      if (item.symbol.endsWith('.RO')) {
+        bvbTotal += item.value;
+      } else if (item.symbol.endsWith('.DE') || item.symbol.endsWith('.PA') || item.symbol.endsWith('.L')) {
+        euTotal += item.value;
+      } else {
+        usTotal += item.value;
+      }
+    });
+
+    const list: AllocationData[] = [];
+    if (usTotal > 0) {
+      list.push({
+        symbol: 'US & Global',
+        name: 'US Tech & Global Markets',
+        value: usTotal,
+        percent: totalPortfolioValue > 0 ? (usTotal / totalPortfolioValue) * 100 : 0,
+        color: '#3b82f6',
+      });
+    }
+    if (bvbTotal > 0) {
+      list.push({
+        symbol: 'BVB Romania',
+        name: 'Bucharest Stock Exchange',
+        value: bvbTotal,
+        percent: totalPortfolioValue > 0 ? (bvbTotal / totalPortfolioValue) * 100 : 0,
+        color: '#10b981',
+      });
+    }
+    if (euTotal > 0) {
+      list.push({
+        symbol: 'Europe',
+        name: 'European Exchanges',
+        value: euTotal,
+        percent: totalPortfolioValue > 0 ? (euTotal / totalPortfolioValue) * 100 : 0,
+        color: '#8b5cf6',
+      });
+    }
+
+    return list.sort((a, b) => b.value - a.value);
+  }, [data, totalPortfolioValue]);
+
+  const activeDataset = viewMode === 'assets' ? data : marketData;
+
   if (data.length === 0) return null;
 
-  const totalPortfolioValue = data.reduce((acc, curr) => acc + curr.value, 0);
-
   return (
-    <Card className="overflow-hidden w-full min-w-0">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-base flex items-center gap-2">
-          <PieIcon className="h-4 w-4 text-indigo-500" />
-          {t('portfolio.allocation')}
-        </CardTitle>
-        <span className="text-xs text-muted-foreground font-mono">
-          {data.length} active
-        </span>
+    <Card className="overflow-hidden w-full min-w-0 shadow-xs border-border/70">
+      <CardHeader className="pb-2.5 flex flex-row items-center justify-between flex-wrap gap-2 border-b border-border/40 bg-muted/15">
+        <div className="flex items-center gap-2">
+          <PieIcon className="h-4 w-4 text-indigo-400" />
+          <CardTitle className="text-sm sm:text-base font-semibold">{t('portfolio.allocation')}</CardTitle>
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex items-center bg-muted/70 p-0.5 rounded-lg border text-[11px]">
+          <button
+            onClick={() => setViewMode('assets')}
+            className={`px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+              viewMode === 'assets'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Holdings
+          </button>
+          <button
+            onClick={() => setViewMode('markets')}
+            className={`px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+              viewMode === 'markets'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Markets
+          </button>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4 pt-1">
+
+      <CardContent className="space-y-4 pt-3">
         {/* Donut Chart */}
         <div className="h-48 w-full relative flex items-center justify-center">
           {!mounted ? (
@@ -53,23 +128,23 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
             <ResponsiveContainer width="100%" height={190}>
               <PieChart>
                 <Pie
-                  data={data}
+                  data={activeDataset}
                   cx="50%"
                   cy="50%"
-                  innerRadius={52}
-                  outerRadius={78}
-                  paddingAngle={2}
+                  innerRadius={54}
+                  outerRadius={80}
+                  paddingAngle={2.5}
                   dataKey="value"
                   onMouseEnter={(_, index) => setActiveIndex(index)}
                   onMouseLeave={() => setActiveIndex(null)}
                 >
-                  {data.map((entry, index) => (
+                  {activeDataset.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.color}
                       stroke="transparent"
                       className="transition-all duration-200 cursor-pointer"
-                      opacity={activeIndex === null || activeIndex === index ? 1 : 0.45}
+                      opacity={activeIndex === null || activeIndex === index ? 1 : 0.4}
                     />
                   ))}
                 </Pie>
@@ -86,7 +161,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
                         <p className="text-muted-foreground text-[11px] truncate max-w-[150px]">{item.name}</p>
                         <div className="mt-1 flex items-center justify-between gap-3 pt-1 border-t border-border/50">
                           <span className="font-semibold">{formatCurrency(item.value, baseCurrency)}</span>
-                          <span className="text-emerald-500 font-bold">{item.percent.toFixed(1)}%</span>
+                          <span className="text-emerald-400 font-bold">+{item.percent.toFixed(1)}%</span>
                         </div>
                       </div>
                     );
@@ -98,7 +173,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
 
           {/* Center stats */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">TOTAL</span>
+            <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">TOTAL</span>
             <span className="text-xs sm:text-sm font-bold font-mono text-foreground">
               {formatCurrency(totalPortfolioValue, baseCurrency)}
             </span>
@@ -107,7 +182,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
 
         {/* Clean, Ranked Allocation List */}
         <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
-          {data.map((item, index) => {
+          {activeDataset.map((item, index) => {
             const isHovered = activeIndex === index;
             return (
               <div
@@ -115,7 +190,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
                 className={`p-2 rounded-lg transition-colors text-xs flex flex-col gap-1 cursor-pointer ${
-                  isHovered ? 'bg-muted' : 'hover:bg-muted/50'
+                  isHovered ? 'bg-muted/80' : 'hover:bg-muted/40'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -128,8 +203,8 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
                     <span className="text-muted-foreground truncate text-[11px]">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="font-mono text-muted-foreground">{formatCurrency(item.value, baseCurrency)}</span>
-                    <span className="font-bold text-foreground text-right w-10">{item.percent.toFixed(1)}%</span>
+                    <span className="font-mono text-muted-foreground text-[11px]">{formatCurrency(item.value, baseCurrency)}</span>
+                    <span className="font-bold text-foreground text-right w-11">{item.percent.toFixed(1)}%</span>
                   </div>
                 </div>
 

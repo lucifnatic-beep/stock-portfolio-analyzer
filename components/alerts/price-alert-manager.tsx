@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Bell, Plus, Trash2, ArrowUp, ArrowDown, Check } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -105,10 +106,15 @@ export function PriceAlertManager() {
             <Bell className="h-4 w-4 text-orange-500" />
             {t('alerts.title')}
           </CardTitle>
-          <Button size="sm" variant="outline" onClick={() => setShowForm(!showForm)}>
-            <Plus className="h-3 w-3 mr-1" />
-            {t('alerts.addAlert')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link href="/alerts" className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">
+              Manage ({alerts.length}) →
+            </Link>
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowForm(!showForm)}>
+              <Plus className="h-3 w-3 mr-1" />
+              {t('alerts.addAlert')}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

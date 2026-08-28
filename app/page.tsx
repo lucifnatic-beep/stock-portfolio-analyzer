@@ -155,9 +155,12 @@ export default function DashboardPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('portfolio.title')}</h1>
           <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
             <span>{filteredPositions.length} active positions</span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
-              Live synced
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+              </span>
+              Live Synced
             </span>
           </p>
         </div>

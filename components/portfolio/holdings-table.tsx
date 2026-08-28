@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Trash2, ExternalLink, ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
+import { Trash2, ExternalLink, ArrowUpRight, ArrowDownRight, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, formatPercent, getChangeColor, formatNumber } from '@/lib/utils';
 import { db } from '@/lib/db';
@@ -19,6 +19,9 @@ interface Props {
 export function HoldingsTable({ positions }: Props) {
   const { locale, baseCurrency, activeBroker } = useAppStore();
   const t = useTranslation(locale);
+  const [expanded, setExpanded] = useState(false);
+
+  const visiblePositions = expanded || positions.length <= 5 ? positions : positions.slice(0, 5);
 
   const handleDelete = async (id: number | undefined) => {
     if (!id) return;
@@ -68,7 +71,7 @@ export function HoldingsTable({ positions }: Props) {
       <CardContent className="p-0">
         {/* Mobile View: High-density full-width card list */}
         <div className="sm:hidden divide-y divide-border/30">
-          {positions.map((pos) => {
+          {visiblePositions.map((pos) => {
             const isPositive = pos.profitLoss >= 0;
             const isDayPositive = pos.dayChange >= 0;
 
@@ -161,7 +164,7 @@ export function HoldingsTable({ positions }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/30">
-              {positions.map((pos) => {
+              {visiblePositions.map((pos) => {
                 const isPositive = pos.profitLoss >= 0;
                 const isDayPositive = pos.dayChange >= 0;
 
@@ -286,6 +289,30 @@ export function HoldingsTable({ positions }: Props) {
           </table>
         </div>
       </CardContent>
+
+      {/* Expand / Collapse Footer if > 5 positions */}
+      {positions.length > 5 && (
+        <div className="p-2.5 border-t border-border/40 bg-muted/10 text-center flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setExpanded(!expanded)}
+            className="w-full sm:w-auto text-xs font-bold text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 gap-1.5 cursor-pointer rounded-lg"
+          >
+            {expanded ? (
+              <>
+                <span>Show Less (Top 5)</span>
+                <ChevronUp className="h-4 w-4" />
+              </>
+            ) : (
+              <>
+                <span>See All {positions.length} Positions (+{positions.length - 5} more)</span>
+                <ChevronDown className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
