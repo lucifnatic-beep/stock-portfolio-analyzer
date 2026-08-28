@@ -105,6 +105,8 @@ export interface PositionWithQuote extends Position {
   dayChange: number;
   dayChangePercent: number;
   shortName: string;
+  convertedBuyPrice: number;
+  convertedCurrentPrice: number;
   convertedMarketValue: number;
   convertedTotalCost: number;
   convertedProfitLoss: number;
@@ -201,5 +203,5 @@ export const EXCHANGE_SUFFIXES: Record<string, string> = {
   'EURONEXT_PARIS': '.PA',
 };
 
-export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
-export type SupportedCurrency = typeof SUPPORTED_CURRENCIES[number];
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'RON'] as const;
+export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];

@@ -120,13 +120,27 @@ export function HoldingsTable({ positions }: Props) {
                     </td>
 
                     {/* Avg Cost */}
-                    <td className="text-right py-3 px-2 font-mono text-muted-foreground">
-                      {formatCurrency(pos.buyPrice, pos.currency)}
+                    <td className="text-right py-3 px-2 font-mono">
+                      <span className="text-muted-foreground block">
+                        {formatCurrency(pos.convertedBuyPrice || pos.buyPrice, baseCurrency)}
+                      </span>
+                      {pos.currency !== baseCurrency && (
+                        <span className="text-[10px] text-muted-foreground/60 block">
+                          {formatCurrency(pos.buyPrice, pos.currency)}
+                        </span>
+                      )}
                     </td>
 
                     {/* Current Price */}
-                    <td className="text-right py-3 px-2 font-mono font-semibold text-foreground">
-                      {formatCurrency(pos.currentPrice, pos.currency)}
+                    <td className="text-right py-3 px-2 font-mono font-semibold">
+                      <span className="text-foreground block">
+                        {formatCurrency(pos.convertedCurrentPrice || pos.currentPrice, baseCurrency)}
+                      </span>
+                      {pos.currency !== baseCurrency && (
+                        <span className="text-[10px] text-muted-foreground/70 block">
+                          {formatCurrency(pos.currentPrice, pos.currency)}
+                        </span>
+                      )}
                     </td>
 
                     {/* Market Value */}
@@ -135,7 +149,7 @@ export function HoldingsTable({ positions }: Props) {
                         {formatCurrency(pos.convertedMarketValue || pos.marketValue, baseCurrency)}
                       </span>
                       {pos.currency !== baseCurrency && (
-                        <span className="text-[10px] text-muted-foreground block font-mono">
+                        <span className="text-[10px] text-muted-foreground/70 block font-mono">
                           {formatCurrency(pos.marketValue, pos.currency)}
                         </span>
                       )}

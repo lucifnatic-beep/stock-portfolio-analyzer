@@ -106,8 +106,8 @@ export function Header() {
             </Button>
 
             {/* Currency toggle */}
-            <div className="flex items-center rounded-lg border bg-muted/50 p-0.5 text-[11px] sm:text-xs">
-              {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
+            <div className="flex items-center rounded-lg border bg-muted/50 p-0.5 text-[10px] sm:text-xs">
+              {(['USD', 'EUR', 'GBP', 'RON'] as const).map((curr) => (
                 <button
                   key={curr}
                   onClick={() => setBaseCurrency(curr)}

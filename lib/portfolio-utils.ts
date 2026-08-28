@@ -40,6 +40,8 @@ export function calculatePositionPL(
 
   const fxRate = getFXRate(position.currency, baseCurrency, fxRates);
 
+  const convertedBuyPrice = position.buyPrice * fxRate;
+  const convertedCurrentPrice = currentPrice * fxRate;
   const convertedMarketValue = marketValue * fxRate;
   const convertedTotalCost = totalCost * fxRate;
   const convertedProfitLoss = profitLoss * fxRate;
@@ -55,6 +57,8 @@ export function calculatePositionPL(
     dayChange: dayChange * position.shares,
     dayChangePercent,
     shortName,
+    convertedBuyPrice,
+    convertedCurrentPrice,
     convertedMarketValue,
     convertedTotalCost,
     convertedProfitLoss,

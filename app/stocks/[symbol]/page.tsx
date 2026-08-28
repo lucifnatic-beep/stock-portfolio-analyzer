@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { CandlestickChart } from '@/components/charts/candlestick-chart';
 import { TechnicalSummary } from '@/components/analysis/technical-summary';
 import { FundamentalCard } from '@/components/analysis/fundamental-card';
+import { MacroAnalystCard } from '@/components/analysis/macro-analyst-card';
 import { ComparisonChart } from '@/components/analysis/comparison-chart';
 import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from '@/lib/i18n';
@@ -149,33 +150,78 @@ export default function StockPage() {
         </div>
       </div>
 
-      {/* Chart + Analysis */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        {/* Main chart area */}
-        <div className="xl:col-span-2 space-y-4">
-          {history.length > 0 && (
+      {/* Chart + 3 Pillars of Analysis */}
+      <div className="space-y-6">
+        {/* Main interactive candlestick chart */}
+        {history.length > 0 && (
+          <div className="rounded-xl border bg-card/60 p-4 shadow-xs">
             <CandlestickChart data={history} symbol={symbol} />
-          )}
+          </div>
+        )}
 
-          {/* Comparison chart */}
-          {history.length > 0 && benchmarkHistory.length > 0 && (
+        {/* 3 Pillars Section Header */}
+        <div className="border-b border-border/40 pb-2">
+          <h2 className="text-lg font-bold tracking-tight text-foreground">
+            3-Pillar Investment Analysis: Technical, Fundamental & Macro
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Multi-factor evaluation model combining price action, financial health, and global catalysts.
+          </p>
+        </div>
+
+        {/* 3 Pillars Grid */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Pillar 1: Technical Analysis */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <span>📐 Pillar 1: Technical Signals</span>
+            </div>
+            {signals ? (
+              <TechnicalSummary signals={signals} />
+            ) : (
+              <div className="p-6 rounded-xl border text-center text-xs text-muted-foreground">
+                Calculating technical indicators...
+              </div>
+            )}
+          </div>
+
+          {/* Pillar 2: Fundamental Health & Valuation */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-400">
+              <span>💼 Pillar 2: Financial Health & Ratios</span>
+            </div>
+            {fundamentals ? (
+              <FundamentalCard fundamentals={fundamentals} />
+            ) : (
+              <div className="p-6 rounded-xl border text-center text-xs text-muted-foreground">
+                Loading financial fundamentals...
+              </div>
+            )}
+          </div>
+
+          {/* Pillar 3: Macro Trends, Analyst Targets & Catalysts */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
+              <span>🌐 Pillar 3: Macro & Analyst Consensus</span>
+            </div>
+            <MacroAnalystCard symbol={symbol} quote={quote} fundamentals={fundamentals} />
+          </div>
+        </div>
+
+        {/* Comparison chart with S&P 500 benchmark */}
+        {history.length > 0 && benchmarkHistory.length > 0 && (
+          <div className="rounded-xl border bg-card/60 p-4 shadow-xs">
+            <h3 className="text-sm font-semibold mb-3 text-foreground">
+              Benchmark Relative Performance vs S&P 500 (SPY)
+            </h3>
             <ComparisonChart
               stockData={history}
               benchmarkData={benchmarkHistory}
               symbol={symbol}
               benchmarkSymbol="SPY"
             />
-          )}
-        </div>
-
-        {/* Right sidebar */}
-        <div className="space-y-4">
-          {/* Technical Analysis */}
-          {signals && <TechnicalSummary signals={signals} />}
-
-          {/* Fundamental Analysis */}
-          {fundamentals && <FundamentalCard fundamentals={fundamentals} />}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

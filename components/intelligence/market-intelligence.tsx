@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Target, Compass, Newspaper, Sparkles, ExternalLink, ArrowUpRight, ShieldCheck, RefreshCw, Globe, MapPin } from 'lucide-react';
+import { Target, Compass, Newspaper, Sparkles, ExternalLink, ArrowUpRight, RefreshCw, Globe, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ interface AnalystInsight {
   recommendation: string;
   analystCount: number;
   verdict: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'SELL';
+  source?: string;
   region?: 'ro' | 'us' | 'eu';
 }
 
@@ -31,14 +32,17 @@ interface GeopoliticalInsight {
   summary: string;
   action: string;
   badge: string;
+  source?: string;
 }
 
 interface NewsItem {
   title: string;
   publisher: string;
-  link: string;
+  sourceUrl: string;
   publishedAt: string;
   sentiment: 'positive' | 'neutral' | 'negative';
+  category?: string;
+  summary?: string;
   region?: 'ro' | 'us' | 'eu';
 }
 
@@ -54,6 +58,7 @@ export function MarketIntelligence() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeRegion, setActiveRegion] = useState<Region>('all');
+  const [selectedSource, setSelectedSource] = useState<string>('all');
 
   const loadData = useCallback(async () => {
     try {
@@ -61,71 +66,20 @@ export function MarketIntelligence() {
       const res = await fetch('/api/market/insights');
       const json = await res.json();
 
-      // Enrich with regions
       if (json.analysts) {
         json.analysts = json.analysts.map((a: AnalystInsight) => ({
           ...a,
-          region: a.symbol.endsWith('.RO') ? 'ro' : (a.symbol.endsWith('.DE') ? 'eu' : 'us'),
+          region: a.symbol.endsWith('.RO') ? 'ro' : (a.symbol.endsWith('.DE') || a.symbol.endsWith('.PA') ? 'eu' : 'us'),
         }));
-      }
-
-      if (json.geopolitics) {
-        json.geopolitics = [
-          {
-            topic: 'Politica Monetară & Dobânzi (BNR & Guvern)',
-            region: 'ro',
-            regionLabel: '🇷🇴 România / BVB',
-            impact: 'Pozitiv pentru Lichiditate',
-            summary: 'Reducerea treptată a inflației și a ratei de dobândă BNR stimulează fluxul de capital către acțiunile listate la BVB și companiile bancare (TLV).',
-            action: 'Oportunitate de acumulare pe corecții tehnice la bănci (TLV) și indici (ETF BET).',
-            badge: '🟢 FAVORABIL BVB',
-          },
-          {
-            topic: 'Sectorul Energetic & Resurse Strategice (Neptun Deep & H2O)',
-            region: 'ro',
-            regionLabel: '🇷🇴 România / BVB',
-            impact: 'Dividende Mari & Independență Energetică',
-            summary: 'Proiectul de gaze offshore Neptun Deep avansează pentru OMV Petrom (SNP), iar Hidroelectrica (H2O) continuă să fie lider regional pe energie verde cu randamente de dividend atractive.',
-            action: 'Păstrare pe termen lung cu reinvestirea dividendelor.',
-            badge: '🟢 DIVIDEND RIDICAT',
-          },
-          {
-            topic: 'Cursa Globală AI & Infrastructură Tehnologică (Nvidia & TSMC)',
-            region: 'us',
-            regionLabel: '🇺🇸 SUA & Global Tech',
-            impact: 'Monopol Tehnologic & Cerere Record',
-            summary: 'Giganții Microsoft, Google, Amazon și Meta investesc sute de miliarde în centre de date. Nvidia și TSMC rămân pilonii centrali ai acestei revoluții.',
-            action: 'Cumpără pe suporturile EMA 50 / RSI < 40.',
-            badge: '🚀 CREȘTERE RAPIDĂ',
-          },
-          {
-            topic: 'Rezerva Federală SUA (Fed) & Ciclul de Relaxare Monetară',
-            region: 'us',
-            regionLabel: '🇺🇸 SUA & Global Tech',
-            impact: 'Evaluări Ridicate pe Acțiuni de Creștere',
-            summary: 'Scăderea dobânzilor în SUA ieftinește creditarea și susține multiplii de evaluare pentru sectorul tech, gaming (Take-Two) și healthcare.',
-            action: 'Menține expunerea pe liderii de piață din SUA.',
-            badge: '🟢 FAVORABIL SUA',
-          },
-          {
-            topic: 'Piața Europeană de Lux & Energie (Amundi Luxury & ConocoPhillips)',
-            region: 'eu',
-            regionLabel: '🇪🇺 Europa & Global',
-            impact: 'Revenire a Consumului & Reziliență',
-            summary: 'Sectorul european de lux beneficiază de revenirea cererii globale, iar companiile energetice globale oferă fluxuri masive de numerar și răscumpărări de acțiuni.',
-            action: 'Diversificare echilibrată între EUR și USD.',
-            badge: '💎 REZILIENȚĂ UE',
-          },
-        ];
       }
 
       if (json.news) {
         json.news = json.news.map((n: NewsItem) => {
           let reg: 'ro' | 'us' | 'eu' = 'us';
-          const t = n.title.toLowerCase();
-          if (t.includes('bvb') || t.includes('romania') || t.includes('petrom') || t.includes('transilvania') || t.includes('hidroelectrica') || t.includes('neptun')) {
+          const t = (n.title + ' ' + (n.publisher || '')).toLowerCase();
+          if (t.includes('bvb') || t.includes('romania') || t.includes('petrom') || t.includes('transilvania') || t.includes('hidroelectrica') || t.includes('neptun') || t.includes('ziarul')) {
             reg = 'ro';
-          } else if (t.includes('europa') || t.includes('lux') || t.includes('germany') || t.includes('ecb') || t.includes('bce')) {
+          } else if (t.includes('europa') || t.includes('european') || t.includes('germany') || t.includes('ecb') || t.includes('financial times') || t.includes('ft.com')) {
             reg = 'eu';
           }
           return { ...n, region: reg };
@@ -143,21 +97,20 @@ export function MarketIntelligence() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 180000); // 3 min auto refresh
+    const interval = setInterval(loadData, 180000);
     return () => clearInterval(interval);
   }, [loadData]);
 
   if (loading && !data) {
     return (
-      <div className="p-8 text-center text-muted-foreground animate-pulse">
-        Se încarcă analizele de la brokerii de top și factorii geopolitici...
+      <div className="p-8 text-center text-muted-foreground animate-pulse text-xs">
+        Loading multi-source intelligence from Reuters, Bloomberg, FT, and Wall Street analysts...
       </div>
     );
   }
 
   if (!data) return null;
 
-  // Filter by region
   const filteredAnalysts = data.analysts.filter((a) => {
     if (activeRegion === 'all') return true;
     return a.region === activeRegion;
@@ -169,41 +122,42 @@ export function MarketIntelligence() {
   });
 
   const filteredNews = data.news.filter((n) => {
-    if (activeRegion === 'all') return true;
-    return n.region === activeRegion;
+    const matchesRegion = activeRegion === 'all' || n.region === activeRegion;
+    const matchesSource = selectedSource === 'all' || n.publisher.toLowerCase().includes(selectedSource.toLowerCase());
+    return matchesRegion && matchesSource;
   });
 
+  const sourcesList = ['all', 'Reuters', 'Bloomberg', 'Financial Times', 'CNBC', 'MarketWatch', 'Ziarul Financiar'];
+
   const regionTabs = [
-    { id: 'all' as Region, label: 'Toate Regiunile', icon: Globe },
-    { id: 'ro' as Region, label: '🇷🇴 România (BVB)', icon: MapPin },
-    { id: 'us' as Region, label: '🇺🇸 SUA & Tech', icon: MapPin },
-    { id: 'eu' as Region, label: '🇪🇺 Europa & Global', icon: MapPin },
+    { id: 'all' as Region, label: 'Global (All)', icon: Globe },
+    { id: 'us' as Region, label: '🇺🇸 US & Tech', icon: MapPin },
+    { id: 'eu' as Region, label: '🇪🇺 Europe', icon: MapPin },
+    { id: 'ro' as Region, label: '🇷🇴 BVB Romania', icon: MapPin },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header with Region Tabs & Manual Refresh */}
       <div className="flex items-center justify-between flex-wrap gap-3 border-b border-border/40 pb-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-indigo-400" />
-            Market Intelligence: Recomandări Brokeri, Politică & Știri
+            Market Intelligence & Multi-Source Analysis
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Analiză automată a deciziilor de cumpărare / vânzare și impactul geopolitic regional
+            Analyst targets, macro policies, and financial news aggregated across Reuters, Bloomberg, FT, and BVB.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Region Tabs */}
           <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/50 text-xs">
             {regionTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveRegion(tab.id)}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg font-semibold transition-all ${
                   activeRegion === tab.id
-                    ? 'bg-background text-foreground shadow-sm'
+                    ? 'bg-background text-foreground shadow-xs'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -212,171 +166,207 @@ export function MarketIntelligence() {
             ))}
           </div>
 
-          {/* Refresh Button */}
           <Button
             variant="outline"
             size="sm"
             onClick={loadData}
             disabled={refreshing}
             className="h-8 gap-1.5 text-xs"
-            title="Actualizează datele acum"
+            title="Refresh market data"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-indigo-400' : ''}`} />
-            <span>Actualizează</span>
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
         </div>
       </div>
 
-      {/* 1. Top Analyst Price Targets & Buy Recommendations */}
-      <Card className="border-border/70 overflow-hidden shadow-sm">
+      <Card className="border-border/70 overflow-hidden shadow-xs">
         <CardHeader className="bg-muted/15 border-b border-border/40 pb-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-indigo-400" />
               <div>
                 <CardTitle className="text-base font-semibold">
-                  Ce zic Brokerii de Top & Prețuri Țintă (Wall Street & BVB)
+                  Analyst Consensus & 12-Month Price Targets
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Consensul marilor case de analiză (Goldman Sachs, Morgan Stanley, BT Capital, Wood & Co)
+                  Aggregated ratings from Wall Street (FactSet/TipRanks) & BVB Research (Wood & Co, BT Capital, Erste)
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs font-mono bg-indigo-500/10 text-indigo-400 border-indigo-500/20">
-              {filteredAnalysts.length} active analizate
+            <Badge variant="outline" className="text-[11px] font-mono border-indigo-500/30 text-indigo-400 bg-indigo-500/10">
+              {filteredAnalysts.length} stocks covered
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="grid divide-y md:divide-y-0 md:grid-cols-2 lg:grid-cols-3 md:divide-x divide-border/40">
-            {filteredAnalysts.map((item) => {
-              const isStrongBuy = item.verdict === 'STRONG_BUY';
-              const isBuy = item.verdict === 'BUY';
-
-              return (
-                <div key={item.symbol} className="p-4 hover:bg-muted/30 transition-colors flex flex-col justify-between gap-3">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <Link
-                        href={`/stocks/${item.symbol}`}
-                        className="font-bold text-sm text-foreground hover:text-indigo-400 flex items-center gap-1"
-                      >
-                        {item.symbol}
-                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                      </Link>
-                      <Badge
-                        variant={isStrongBuy ? 'success' : isBuy ? 'info' : 'warning'}
-                        className="text-[10px] font-bold px-2 py-0.5"
-                      >
-                        {isStrongBuy ? 'CUMPĂRĂ PUTERNIC' : isBuy ? 'CUMPĂRĂ' : 'MENȚINE'}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{item.name}</p>
+          <div className="grid divide-y divide-border/40 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-3">
+            {filteredAnalysts.map((a) => (
+              <div key={a.symbol} className="p-4 hover:bg-muted/30 transition-colors flex flex-col justify-between gap-3">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Link href={`/stocks/${a.symbol}`} className="font-bold text-foreground hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                      <span>{a.symbol}</span>
+                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                    </Link>
+                    <Badge
+                      variant={a.verdict === 'STRONG_BUY' ? 'success' : a.verdict === 'BUY' ? 'success' : 'secondary'}
+                      className="text-[10px] uppercase font-bold"
+                    >
+                      {a.verdict.replace('_', ' ')}
+                    </Badge>
                   </div>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{a.name}</p>
+                </div>
 
-                  <div className="space-y-1.5 bg-card/60 p-2.5 rounded-lg border border-border/50">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Preț Țintă Mediu:</span>
-                      <span className="font-bold font-mono text-foreground">
-                        {formatCurrency(item.targetPrice, item.symbol.endsWith('.RO') ? 'RON' : 'USD')}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Potențial Creștere (Upside):</span>
-                      <span className="font-bold font-mono text-emerald-400 flex items-center">
-                        <ArrowUpRight className="h-3.5 w-3.5 mr-0.5" />
-                        +{item.upsidePercent.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground/80 flex items-center justify-between pt-1 border-t border-border/30">
-                      <span>Opinie: {item.recommendation}</span>
-                      <span>{item.analystCount} analiști</span>
-                    </div>
+                <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-lg border text-xs">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">Current Price</span>
+                    <span className="font-mono font-semibold text-foreground">
+                      {formatCurrency(a.currentPrice, a.symbol.endsWith('.RO') ? 'RON' : a.symbol.endsWith('.DE') ? 'EUR' : 'USD')}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">Target Price</span>
+                    <span className="font-mono font-bold text-emerald-400">
+                      {formatCurrency(a.targetPrice, a.symbol.endsWith('.RO') ? 'RON' : a.symbol.endsWith('.DE') ? 'EUR' : 'USD')}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-border/30">
+                  <span className="text-[11px] text-muted-foreground truncate max-w-[170px]" title={a.source || a.recommendation}>
+                    {a.source ? a.source.split('/')[0].trim() : `${a.analystCount} analysts`}
+                  </span>
+                  <span className="font-bold text-emerald-400 font-mono flex items-center gap-0.5">
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                    +{a.upsidePercent.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* 2. Geopolitical, Macro & Market Timing Intelligence by Region */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader className="pb-3 border-b border-border/40 bg-muted/15">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Compass className="h-5 w-5 text-amber-400" />
-              Analiză Politică & Factori Macroeconomici
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Impactul deciziilor guvernamentale, dobânzilor și reglementărilor
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            {filteredGeopolitics.map((g, idx) => (
-              <div key={idx} className="p-3.5 rounded-lg border border-border/50 bg-card/50 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-muted-foreground">{g.regionLabel}</span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground border">
+      {/* 2. Macro & Geopolitical Catalysts (Pillar 3) */}
+      <Card className="border-border/70 overflow-hidden shadow-xs">
+        <CardHeader className="bg-muted/15 border-b border-border/40 pb-3">
+          <div className="flex items-center gap-2">
+            <Compass className="h-5 w-5 text-amber-500" />
+            <div>
+              <CardTitle className="text-base font-semibold">
+                Macroeconomic Trends & Geopolitical Catalysts
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Interest rate policies, energy transition, AI compute supercycle, and defense spending
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 grid gap-4 md:grid-cols-2">
+          {filteredGeopolitics.map((g, idx) => (
+            <div key={idx} className="p-4 rounded-xl border bg-card/50 flex flex-col justify-between gap-2.5">
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-muted border text-muted-foreground">
                     {g.badge}
                   </span>
+                  {g.source && (
+                    <span className="text-[10px] text-muted-foreground/70 truncate max-w-[160px]">
+                      {g.source}
+                    </span>
+                  )}
                 </div>
-                <h4 className="font-semibold text-xs text-foreground">{g.topic}</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {g.summary}
-                </p>
-                <div className="pt-1.5 border-t border-border/30 flex items-start gap-1.5 text-xs text-indigo-300 font-medium">
-                  <ShieldCheck className="h-3.5 w-3.5 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Strategie:</strong> {g.action}</span>
-                </div>
+                <h4 className="font-bold text-sm text-foreground">{g.topic}</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{g.summary}</p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
 
-        {/* 3. Live News Feed with Sentiment */}
-        <Card className="border-border/70 shadow-sm flex flex-col justify-between">
-          <CardHeader className="pb-3 border-b border-border/40 bg-muted/15">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Newspaper className="h-5 w-5 text-sky-400" />
-              Știri de Piață & Evenimente în Timp Real
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Cele mai recente știri financiare filtrate pe regiunea selectată
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3 flex-1">
-            {filteredNews.length === 0 ? (
-              <p className="text-xs text-muted-foreground p-4 text-center">
-                Nu există știri recente pentru regiunea selectată în acest moment.
-              </p>
-            ) : (
-              filteredNews.map((item, idx) => (
-                <a
-                  key={idx}
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 rounded-lg border border-border/40 bg-card/40 hover:bg-muted/40 transition-colors block group space-y-1"
+              <div className="pt-2 border-t border-border/40 flex items-center justify-between text-xs">
+                <span className="text-[11px] text-indigo-400 font-medium">{g.action}</span>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* 3. Multi-Source Financial News Wire */}
+      <Card className="border-border/70 overflow-hidden shadow-xs">
+        <CardHeader className="bg-muted/15 border-b border-border/40 pb-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Newspaper className="h-5 w-5 text-emerald-500" />
+              <div>
+                <CardTitle className="text-base font-semibold">
+                  Multi-Source Financial News Wire
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Real-time updates from Reuters, Bloomberg, Financial Times, CNBC, and Ziarul Financiar
+                </CardDescription>
+              </div>
+            </div>
+
+            {/* Source Filter Chips */}
+            <div className="flex items-center gap-1 overflow-x-auto max-w-full py-1">
+              {sourcesList.map((src) => (
+                <button
+                  key={src}
+                  onClick={() => setSelectedSource(src)}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-semibold whitespace-nowrap transition-colors ${
+                    selectedSource === src
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-mono text-muted-foreground">{item.publisher}</span>
-                    <Badge
-                      variant={item.sentiment === 'positive' ? 'success' : item.sentiment === 'negative' ? 'danger' : 'outline'}
-                      className="text-[9px] px-1 py-0 h-3.5"
-                    >
-                      {item.sentiment === 'positive' ? 'POZITIV' : item.sentiment === 'negative' ? 'ATENȚIE' : 'NEUTRU'}
+                  {src === 'all' ? 'All Sources' : src}
+                </button>
+              ))}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 divide-y divide-border/40">
+          {filteredNews.length === 0 ? (
+            <div className="p-6 text-center text-xs text-muted-foreground">
+              No news items found for the selected source or region.
+            </div>
+          ) : (
+            filteredNews.map((n, idx) => (
+              <a
+                key={idx}
+                href={n.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3.5 sm:p-4 hover:bg-muted/30 transition-colors flex items-start justify-between gap-3 block group"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className="text-[10px] font-bold bg-muted border-border/60 text-foreground">
+                      {n.publisher}
                     </Badge>
+                    {n.category && (
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {n.category}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-muted-foreground/60">
+                      {new Date(n.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <h5 className="text-xs font-semibold text-foreground group-hover:text-sky-400 transition-colors leading-snug line-clamp-2">
-                    {item.title}
-                  </h5>
-                </a>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-emerald-400 transition-colors">
+                    {n.title}
+                  </h4>
+                  {n.summary && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      {n.summary}
+                    </p>
+                  )}
+                </div>
+                <ExternalLink className="h-4 w-4 text-muted-foreground opacity-40 group-hover:opacity-100 group-hover:text-emerald-400 shrink-0 mt-1 transition-all" />
+              </a>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
