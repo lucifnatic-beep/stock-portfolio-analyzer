@@ -34,17 +34,18 @@ export function AllocationChart({ data, currency = 'USD' }: Props) {
     return data.reduce((acc, curr) => acc + curr.value, 0);
   }, [data]);
 
-  // Market classification: US, BVB Romania, Europe
+  // Market classification: US, Europe, UK
   const marketData = useMemo(() => {
     let usTotal = 0;
-    let bvbTotal = 0;
     let euTotal = 0;
+    let ukTotal = 0;
 
     data.forEach((item) => {
-      if (item.symbol.endsWith('.RO')) {
-        bvbTotal += item.value;
-      } else if (item.symbol.endsWith('.DE') || item.symbol.endsWith('.PA') || item.symbol.endsWith('.L')) {
+      const sym = item.symbol.toUpperCase();
+      if (sym.endsWith('.DE') || sym.endsWith('.PA') || sym.endsWith('.AS') || sym.endsWith('.MI')) {
         euTotal += item.value;
+      } else if (sym.endsWith('.L') || sym.endsWith('.CO')) {
+        ukTotal += item.value;
       } else {
         usTotal += item.value;
       }
@@ -60,22 +61,22 @@ export function AllocationChart({ data, currency = 'USD' }: Props) {
         color: '#3b82f6',
       });
     }
-    if (bvbTotal > 0) {
-      list.push({
-        symbol: 'BVB Romania',
-        name: 'Bucharest Stock Exchange',
-        value: bvbTotal,
-        percent: totalPortfolioValue > 0 ? (bvbTotal / totalPortfolioValue) * 100 : 0,
-        color: '#10b981',
-      });
-    }
     if (euTotal > 0) {
       list.push({
-        symbol: 'Europe',
-        name: 'European Exchanges',
+        symbol: 'Western Europe',
+        name: 'XETRA, Euronext & Continental EU',
         value: euTotal,
         percent: totalPortfolioValue > 0 ? (euTotal / totalPortfolioValue) * 100 : 0,
         color: '#8b5cf6',
+      });
+    }
+    if (ukTotal > 0) {
+      list.push({
+        symbol: 'UK & Nordic',
+        name: 'LSE & Nordic Exchanges',
+        value: ukTotal,
+        percent: totalPortfolioValue > 0 ? (ukTotal / totalPortfolioValue) * 100 : 0,
+        color: '#10b981',
       });
     }
 

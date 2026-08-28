@@ -9,7 +9,7 @@ import { PortfolioSummary } from '@/components/portfolio/portfolio-summary';
 import { HoldingsTable } from '@/components/portfolio/holdings-table';
 import { AddPositionDialog } from '@/components/portfolio/add-position-dialog';
 import { T212ImportDialog } from '@/components/portfolio/t212-import-dialog';
-import { BCRImportDialog } from '@/components/portfolio/bcr-import-dialog';
+import { CSVImportDialog } from '@/components/portfolio/csv-import-dialog';
 import { BrokerTabs } from '@/components/portfolio/broker-tabs';
 import { AllocationChart } from '@/components/portfolio/allocation-chart';
 import { WatchlistPanel } from '@/components/watchlist/watchlist-panel';
@@ -167,7 +167,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <T212ImportDialog onImportSuccess={fetchQuotes} />
-          <BCRImportDialog onImportSuccess={fetchQuotes} />
+          <CSVImportDialog onImportSuccess={fetchQuotes} />
           <AddPositionDialog />
         </div>
       </div>

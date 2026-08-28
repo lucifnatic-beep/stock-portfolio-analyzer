@@ -18,7 +18,7 @@ export async function initDefaultBrokers() {
               name: b.name,
               color: b.color,
               cash: 0,
-              cashCurrency: b.id === 't212' ? 'USD' : 'RON',
+              cashCurrency: b.id === 'degiro' ? 'EUR' : 'USD',
             });
           }
         }
@@ -35,13 +35,13 @@ export async function initDefaultBrokers() {
 export async function seedSamplePortfolio() {
   try {
     await db.transaction('rw', [db.brokers, db.positions, db.watchlist], async () => {
-      // Demo Positions
+      // Demo Positions: US & European Giants
       const demoPositions = [
-        { symbol: 'NVDA', shares: 10, buyPrice: 118.50, currency: 'USD', exchange: 'NASDAQ', broker: 't212', notes: 'NVIDIA Corp', buyDate: '2025-01-15' },
-        { symbol: 'MSFT', shares: 5, buyPrice: 420.00, currency: 'USD', exchange: 'NASDAQ', broker: 't212', notes: 'Microsoft Corp', buyDate: '2025-02-01' },
-        { symbol: 'TLV.RO', shares: 300, buyPrice: 24.50, currency: 'RON', exchange: 'BVB', broker: 'bcr', notes: 'Banca Transilvania', buyDate: '2024-11-20' },
-        { symbol: 'SNP.RO', shares: 2000, buyPrice: 0.65, currency: 'RON', exchange: 'BVB', broker: 'bcr', notes: 'OMV Petrom', buyDate: '2024-11-20' },
-        { symbol: 'TVBETETF.RO', shares: 50, buyPrice: 28.00, currency: 'RON', exchange: 'BVB', broker: 'investimental', notes: 'ETF BET Romania', buyDate: '2025-01-10' },
+        { symbol: 'NVDA', shares: 10, buyPrice: 118.50, currency: 'USD', exchange: 'NASDAQ', broker: 't212', notes: 'NVIDIA Corp (AI GPU leader)', buyDate: '2025-01-15' },
+        { symbol: 'MSFT', shares: 5, buyPrice: 420.00, currency: 'USD', exchange: 'NASDAQ', broker: 't212', notes: 'Microsoft Corp (Cloud & Copilot)', buyDate: '2025-02-01' },
+        { symbol: 'ASML', shares: 2, buyPrice: 850.00, currency: 'USD', exchange: 'NASDAQ', broker: 'ibkr', notes: 'ASML Holding (EUV Lithography)', buyDate: '2025-01-20' },
+        { symbol: 'PLTR', shares: 25, buyPrice: 58.00, currency: 'USD', exchange: 'NASDAQ', broker: 'revolut', notes: 'Palantir AIP Enterprise', buyDate: '2025-02-10' },
+        { symbol: 'SAP.DE', shares: 6, buyPrice: 215.00, currency: 'EUR', exchange: 'XETRA', broker: 'degiro', notes: 'SAP SE Cloud ERP', buyDate: '2025-02-15' },
       ];
 
       for (const p of demoPositions) {
@@ -51,7 +51,7 @@ export async function seedSamplePortfolio() {
         });
       }
 
-      const watchlistSymbols = ['NVDA', 'MSFT', 'ASML', 'TLV.RO', 'SNP.RO', 'PLTR'];
+      const watchlistSymbols = ['NVDA', 'MSFT', 'ASML', 'PLTR', 'RHM.DE', 'NVO', 'AAPL', 'AMZN'];
       for (const s of watchlistSymbols) {
         const exists = await db.watchlist.where('symbol').equals(s).first();
         if (!exists) {
@@ -67,4 +67,3 @@ export async function seedSamplePortfolio() {
 
 // Alias for backward compatibility
 export const deduplicateAndSeedPortfolio = initDefaultBrokers;
-

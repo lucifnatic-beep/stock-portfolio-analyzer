@@ -78,8 +78,9 @@ export interface Broker {
 export const DEFAULT_BROKERS: Broker[] = [
   { id: 'all', name: 'All Portfolios', color: '#6366f1' },
   { id: 't212', name: 'Trading 212', color: '#3b82f6', cash: 0, cashCurrency: 'USD' },
-  { id: 'bcr', name: 'BCR Broker', color: '#f59e0b', cash: 1126.94, cashCurrency: 'USD' },
-  { id: 'investimental', name: 'Investimental', color: '#10b981', cash: 0, cashCurrency: 'USD' },
+  { id: 'ibkr', name: 'Interactive Brokers', color: '#dc2626', cash: 0, cashCurrency: 'USD' },
+  { id: 'revolut', name: 'Revolut', color: '#06b6d4', cash: 0, cashCurrency: 'USD' },
+  { id: 'degiro', name: 'Degiro', color: '#f59e0b', cash: 0, cashCurrency: 'EUR' },
 ];
 
 // Portfolio Types
@@ -203,5 +204,5 @@ export const EXCHANGE_SUFFIXES: Record<string, string> = {
   'EURONEXT_PARIS': '.PA',
 };
 
-export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'RON'] as const;
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
 export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];

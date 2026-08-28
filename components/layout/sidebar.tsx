@@ -203,8 +203,8 @@ export function Sidebar() {
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider px-1">
                 Display Currency
               </span>
-              <div className="grid grid-cols-4 gap-1 p-1 bg-muted/50 rounded-xl border border-border/50 text-[11px]">
-                {(['USD', 'EUR', 'GBP', 'RON'] as const).map((curr) => (
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/50 text-[11px]">
+                {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
                   <button
                     key={curr}
                     type="button"

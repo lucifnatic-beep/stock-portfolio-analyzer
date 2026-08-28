@@ -43,7 +43,7 @@ export function calculatePositionPL(
   dayChange: number,
   dayChangePercent: number,
   shortName: string,
-  baseCurrency: string = 'RON',
+  baseCurrency: string = 'USD',
   fxRates: Record<string, number> = {}
 ): PositionWithQuote {
   const totalCost = position.shares * position.buyPrice;

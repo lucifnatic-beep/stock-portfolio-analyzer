@@ -26,7 +26,7 @@ import { formatCurrency, formatPercent } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import type { HotPick } from '@/app/api/market/hot-picks/route';
 
-type RegionTab = 'all' | 'us' | 'eu' | 'ro';
+type RegionTab = 'all' | 'us' | 'eu';
 
 export function MarketOpportunities() {
   const { baseCurrency } = useAppStore();
@@ -83,7 +83,6 @@ export function MarketOpportunities() {
       all: picks.length,
       us: picks.filter((p) => p.region === 'us').length,
       eu: picks.filter((p) => p.region === 'eu').length,
-      ro: picks.filter((p) => p.region === 'ro').length,
     };
   }, [picks]);
 
@@ -97,14 +96,14 @@ export function MarketOpportunities() {
                 <Compass className="h-4 w-4" />
               </div>
               <CardTitle className="text-base sm:text-lg font-bold">
-                Market Discovery: Top US, Europe & Romania
+                Market Discovery: Top US & European Leaders
               </CardTitle>
               <Badge variant="secondary" className="text-[10px] bg-indigo-500/20 text-indigo-400 border-indigo-500/30 font-mono font-semibold">
                 AI Scored
               </Badge>
             </div>
             <CardDescription className="text-xs text-muted-foreground">
-              New high-potential stocks to consider beyond your current portfolio. What the numbers, analyst targets & macro drivers say.
+              Discover top high-conviction US & Western/Central European opportunities with key figures, consensus price targets, and catalysts.
             </CardDescription>
           </div>
 
@@ -137,7 +136,7 @@ export function MarketOpportunities() {
                 : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
-            🌎 All ({regionCounts.all})
+            🌎 All Opportunities ({regionCounts.all})
           </button>
           <button
             onClick={() => setActiveRegion('us')}
@@ -147,7 +146,7 @@ export function MarketOpportunities() {
                 : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
-            🇺🇸 Top US & Global ({regionCounts.us})
+            🇺🇸 Top US & Mega Tech ({regionCounts.us})
           </button>
           <button
             onClick={() => setActiveRegion('eu')}
@@ -157,17 +156,7 @@ export function MarketOpportunities() {
                 : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
-            🇪🇺 Top Europe ({regionCounts.eu})
-          </button>
-          <button
-            onClick={() => setActiveRegion('ro')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-              activeRegion === 'ro'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
-            }`}
-          >
-            🇷🇴 Top BVB Romania ({regionCounts.ro})
+            🇪🇺 Top European Champions ({regionCounts.eu})
           </button>
         </div>
       </CardHeader>
@@ -248,7 +237,7 @@ export function MarketOpportunities() {
                       </div>
                     </div>
 
-                    {/* Analyst Catalyst / What figures say */}
+                    {/* Catalyst */}
                     <p className="text-[11px] text-muted-foreground line-clamp-2 pt-0.5">
                       💡 {item.catalyst}
                     </p>
@@ -257,7 +246,7 @@ export function MarketOpportunities() {
                   {/* Action Bar */}
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30 text-[11px]">
                     <span className="text-[10px] text-muted-foreground truncate">
-                      Via <strong className="text-foreground">{item.recommendedBroker.split('/')[0].trim()}</strong>
+                      Via <strong className="text-foreground">{item.recommendedBroker}</strong>
                     </span>
 
                     <div className="flex items-center gap-1.5 shrink-0">

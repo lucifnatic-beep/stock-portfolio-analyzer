@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, Moon, Sun, Globe, TrendingUp, Menu } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
+import { UserAuthButton } from '@/components/auth/user-auth-button';
 import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from '@/lib/i18n';
 import type { SearchResult } from '@/types';
@@ -105,9 +106,12 @@ export function Header() {
               <Search className="h-4 w-4" />
             </Button>
 
+            {/* User Auth / Cloud Sync */}
+            <UserAuthButton />
+
             {/* Currency toggle */}
             <div className="flex items-center rounded-lg border bg-muted/60 p-0.5 text-[11px] sm:text-xs">
-              {(['USD', 'EUR', 'GBP', 'RON'] as const).map((curr) => (
+              {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
                 <button
                   key={curr}
                   type="button"

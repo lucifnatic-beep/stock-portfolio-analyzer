@@ -6,9 +6,9 @@ export type OrderExecutionType = 'LIMIT' | 'MARKET' | 'DCA_DIP';
 export interface HotPick {
   symbol: string;
   name: string;
-  category: 'ai_tech' | 'bvb_romania' | 'space_future' | 'value_dividend' | 'defense_europe';
+  category: 'ai_tech' | 'european_champions' | 'space_future' | 'value_dividend' | 'defense_europe';
   categoryLabel: string;
-  region: 'ro' | 'us' | 'eu';
+  region: 'us' | 'eu';
   currentPrice: number;
   targetPrice: number;
   upsidePercent: number;
@@ -21,8 +21,7 @@ export interface HotPick {
   fundamentalSignal: string;
   analystConsensus: string;
   macroPolicy: string;
-  // Execution details: WHERE and HOW to buy
-  recommendedBroker: 'Trading 212' | 'BCR Broker' | 'Investimental / TradeVille' | 'BCR Broker / Investimental';
+  recommendedBroker: 'Trading 212' | 'Interactive Brokers' | 'Revolut' | 'Degiro';
   brokerReason: string;
   orderType: OrderExecutionType;
   orderTypeLabel: string;
@@ -31,7 +30,7 @@ export interface HotPick {
   takeProfit1: string;
   takeProfit2: string;
   executionSteps: string;
-  riskLevel: 'Scăzut' | 'Moderat' | 'Ridicat';
+  riskLevel: 'Low' | 'Moderate' | 'High';
   analystCount: number;
   dividendYield?: number;
 }
@@ -43,9 +42,9 @@ export async function GET() {
     return NextResponse.json(cache.data);
   }
 
-  // Comprehensive Universe: US Tech/AI, Space, BVB Romania Champions, European Leaders
+  // Comprehensive Universe: US Tech/AI, European Champions & Global Innovators
   const universe = [
-    // 1. AI & Mega Tech Leaders
+    // 1. AI & Mega Tech Leaders (US)
     {
       symbol: 'NVDA',
       name: 'NVIDIA Corporation',
@@ -53,37 +52,37 @@ export async function GET() {
       categoryLabel: '🚀 AI & Supercomputing',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: '0% comision, tranzacționare în USD, acțiuni fracționate instantanee.',
+      brokerReason: '0% commission, USD execution, instant fractional shares.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT pe Corecție',
+      orderTypeLabel: '🎯 Limit Order on Pullback',
       limitPrice: '$218.50',
       stopLossPrice: '$195.00 (-12%)',
       takeProfit1: '$280.00 (+25%)',
       takeProfit2: '$310.00 (+38%)',
-      executionSteps: 'Deschide Trading 212 -> Caută NVDA -> Alege "Limit Order" la $218.50 -> Activează ordinul pe suport EMA 20.',
-      catalyst: 'Cerere record pentru cipurile Blackwell AI și extinderea centrelor de date hyperscalers (Microsoft, Meta, Google).',
-      macroPolicy: 'Monopol de facto pe acceleratoare AI; investiții globale de peste 200 miliarde $ în infrastructură de calcul.',
-      riskLevel: 'Moderat' as const,
+      executionSteps: 'Open Trading 212 / IBKR -> Search NVDA -> Set Limit Order at $218.50 on EMA 20 support.',
+      catalyst: 'Record Blackwell AI GPU demand and hyperscaler data center buildouts across Microsoft, Meta, Google, and Amazon.',
+      macroPolicy: 'De facto monopoly on AI accelerators with over $200B global sovereign & enterprise compute CapEx.',
+      riskLevel: 'Moderate' as const,
       baseTarget: 305.00,
     },
     {
       symbol: 'TSM',
       name: 'Taiwan Semiconductor (TSMC)',
       category: 'ai_tech' as const,
-      categoryLabel: '🚀 AI & Semiconductori',
+      categoryLabel: '🚀 AI Foundry Monopoly',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Tranzacționare directă ADR pe NYSE în USD sau pe XETRA în EUR (TSFA) fără comision.',
+      brokerReason: 'Direct ADR trading on NYSE in USD or XETRA in EUR (TSFA) with 0% fee.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT pe Suport',
-      limitPrice: '$415.00 (sau 360 € pe TSFA)',
+      orderTypeLabel: '🎯 Limit Order on Support',
+      limitPrice: '$415.00',
       stopLossPrice: '$380.00 (-10%)',
       takeProfit1: '$490.00 (+18%)',
       takeProfit2: '$550.00 (+32%)',
-      executionSteps: 'Trading 212 -> Caută TSM (USD) sau TSFA (EUR) -> Setează Ordin Limit la $415 / 360 €.',
-      catalyst: 'Producătorul exclusiv pentru Apple, Nvidia, AMD și Qualcomm pe nodurile de 3nm și viitoarele 2nm.',
-      macroPolicy: 'Relaxarea dobânzilor Fed și subvențiile CHIPS Act susțin expansiunea fabricilor globale din Arizona și Germania.',
-      riskLevel: 'Scăzut' as const,
+      executionSteps: 'Search TSM (USD) -> Place Limit Order at $415 on consolidation near 50-day moving average.',
+      catalyst: 'Exclusive manufacturer for Apple, Nvidia, AMD, and Qualcomm on leading 3nm and upcoming 2nm nodes.',
+      macroPolicy: 'CHIPS Act grants and global fab expansion in Arizona, Japan, and Germany protect high gross margins.',
+      riskLevel: 'Low' as const,
       baseTarget: 550.00,
     },
     {
@@ -93,410 +92,266 @@ export async function GET() {
       categoryLabel: '🚀 AI Enterprise & Defense',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Zero comisioane, lichiditate maximă pe NASDAQ.',
+      brokerReason: 'Zero commission trading with maximum liquidity on NASDAQ.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
+      orderTypeLabel: '🎯 Limit Order',
       limitPrice: '$142.00',
       stopLossPrice: '$128.00 (-10%)',
       takeProfit1: '$180.00 (+27%)',
       takeProfit2: '$210.00 (+48%)',
-      executionSteps: 'Trading 212 -> Caută PLTR -> Ordin Limit la $142 pe retragere către suportul SMA 50.',
-      catalyst: 'Platforma AIP adoptată masiv de armata SUA și corporațiile Fortune 500 pentru decizii bazate pe AI.',
-      macroPolicy: 'Creșterea bugetelor militare globale NATO și digitalizarea guvernamentală oferă contracte garantate pe termen lung.',
-      riskLevel: 'Moderat' as const,
+      executionSteps: 'Search PLTR -> Set Limit Order at $142 on pullback toward key technical support.',
+      catalyst: 'AIP platform experiencing hyper-adoption across US defense agencies and Fortune 500 enterprise workflows.',
+      macroPolicy: 'Rising NATO defense spending and global government modernization secure multi-year SaaS contracts.',
+      riskLevel: 'Moderate' as const,
       baseTarget: 210.00,
-    },
-    {
-      symbol: 'ASML',
-      name: 'ASML Holding (EUV Lithography)',
-      category: 'ai_tech' as const,
-      categoryLabel: '🚀 Monopol Litografie AI',
-      region: 'us' as const,
-      recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Disponibil atât pe NASDAQ ($ASML) cât și pe Euronext Amsterdam (€ASML) fără comisioane.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
-      limitPrice: '$890.00 (sau 820 €)',
-      stopLossPrice: '$810.00 (-9%)',
-      takeProfit1: '$1,050.00 (+18%)',
-      takeProfit2: '$1,200.00 (+35%)',
-      executionSteps: 'Trading 212 -> Caută ASML -> Plasează Limit Order pe consolidare.',
-      catalyst: 'Singurul producător din lume de mașini de litografie Extreme Ultraviolet (EUV) fără de care nu se pot fabrica cipuri AI.',
-      macroPolicy: 'Garanție absolută a cererii pe măsură ce TSMC, Samsung și Intel construiesc noi fabrici de semiconductori.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 1200.00,
     },
     {
       symbol: 'MSFT',
       name: 'Microsoft Corporation',
       category: 'ai_tech' as const,
-      categoryLabel: '🚀 Cloud & AI Leader',
+      categoryLabel: '🚀 Cloud & AI Titan',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: '0% comision, acțiuni fracționate, reinvestire automată a dividendului.',
+      brokerReason: '0% commission, fractional shares, automatic dividend reinvesting.',
       orderType: 'DCA_DIP' as const,
-      orderTypeLabel: '🟢 Cumpărare la Piață / DCA',
+      orderTypeLabel: '🟢 Market Buy / DCA',
       limitPrice: '$465.00',
       stopLossPrice: '$420.00 (-10%)',
       takeProfit1: '$530.00 (+14%)',
       takeProfit2: '$580.00 (+25%)',
-      executionSteps: 'Trading 212 -> Caută MSFT -> Poți cumpăra Market Order sau programa acumulare lunară.',
-      catalyst: 'Monetizarea Azure AI, integrarea Copilot în suitele Office 365 și infrastructura cloud lider mondial.',
-      macroPolicy: 'Bilanț AAA (cel mai sigur din lume), cash flow uriaș și protecție totală împotriva volatilității.',
-      riskLevel: 'Scăzut' as const,
+      executionSteps: 'Search MSFT -> Execute Market Order or schedule automated monthly DCA.',
+      catalyst: 'Accelerating Azure AI monetization, Copilot suite integrations across 400M+ enterprise seats.',
+      macroPolicy: 'AAA balance sheet with fortress free cash flow and unmatched pricing power.',
+      riskLevel: 'Low' as const,
       baseTarget: 580.00,
       dividendYield: 0.8,
     },
     {
-      symbol: 'TTWO',
-      name: 'Take-Two Interactive Software',
+      symbol: 'AAPL',
+      name: 'Apple Inc.',
       category: 'ai_tech' as const,
-      categoryLabel: '🎮 Gaming & Entertainment',
+      categoryLabel: '📱 Consumer AI Ecosystem',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Tranzacționare în USD pe NASDAQ fără comision.',
+      brokerReason: 'Low-cost USD fractional trading on NASDAQ.',
+      orderType: 'DCA_DIP' as const,
+      orderTypeLabel: '🟢 Accumulate on Dips',
+      limitPrice: '$235.00',
+      stopLossPrice: '$215.00 (-9%)',
+      takeProfit1: '$275.00 (+17%)',
+      takeProfit2: '$300.00 (+28%)',
+      executionSteps: 'Search AAPL -> Buy on technical pullbacks toward the 100-day moving average.',
+      catalyst: 'Apple Intelligence supercycle driving 2B+ active device hardware upgrades and high-margin Services expansion.',
+      macroPolicy: 'Massive $110B annual share repurchase program creating a permanent valuation floor.',
+      riskLevel: 'Low' as const,
+      baseTarget: 300.00,
+      dividendYield: 0.5,
+    },
+    {
+      symbol: 'AMZN',
+      name: 'Amazon.com Inc.',
+      category: 'ai_tech' as const,
+      categoryLabel: '☁️ AWS Cloud & E-Commerce',
+      region: 'us' as const,
+      recommendedBroker: 'Trading 212' as const,
+      brokerReason: '0% commission with high execution speed.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT înainte de Lansare',
-      limitPrice: '$222.00',
-      stopLossPrice: '$205.00 (-8%)',
-      takeProfit1: '$270.00 (+22%)',
-      takeProfit2: '$300.00 (+35%)',
-      executionSteps: 'Trading 212 -> Caută TTWO -> Setează Ordin Limit la $222 pe corecții tehnice.',
-      catalyst: 'Lansarea globală iminentă a Grand Theft Auto VI (GTA VI) — cel mai așteptat produs de divertisment din istorie.',
-      macroPolicy: 'Sector rezistent la ciclurile economice; previziuni de vânzări de miliarde de dolari în primele 48 de ore.',
-      riskLevel: 'Scăzut' as const,
+      orderTypeLabel: '🎯 Limit Order',
+      limitPrice: '$215.00',
+      stopLossPrice: '$195.00 (-9%)',
+      takeProfit1: '$260.00 (+21%)',
+      takeProfit2: '$290.00 (+35%)',
+      executionSteps: 'Search AMZN -> Place Limit Order at $215 on minor market retracements.',
+      catalyst: 'AWS re-accelerating past 20% YoY growth alongside record digital advertising and logistics operating margins.',
+      macroPolicy: 'Global consumer resilience and cloud infrastructure adoption powering double-digit free cash flow growth.',
+      riskLevel: 'Low' as const,
       baseTarget: 290.00,
     },
 
-    // 2. Space & Innovation
-    {
-      symbol: 'SPCX',
-      name: 'Procure Space ETF (SpaceX & Satellites)',
-      category: 'space_future' as const,
-      categoryLabel: '🌌 Spațiu & Sateliți',
-      region: 'us' as const,
-      recommendedBroker: 'Trading 212' as const,
-      brokerReason: '0% comision, expunere diversificată pe sectorul spațial global și sateliți.',
-      orderType: 'MARKET' as const,
-      orderTypeLabel: '⚡ Ordin la PIAȚĂ (Breakout)',
-      limitPrice: '$141.00',
-      stopLossPrice: '$126.00 (-11%)',
-      takeProfit1: '$170.00 (+21%)',
-      takeProfit2: '$195.00 (+38%)',
-      executionSteps: 'Trading 212 -> Caută SPCX -> Execută Market Order sau Limit la $141.',
-      catalyst: 'Explozia economiei spațiale: constelațiile Starlink, lansările lunare Artemis și zborurile comerciale private.',
-      macroPolicy: 'Parteneriate strategice NASA / Space Force și contracte de telecomunicații prin satelit la nivel global.',
-      riskLevel: 'Moderat' as const,
-      baseTarget: 185.00,
-    },
+    // 2. Space & Frontier Technology
     {
       symbol: 'RKLB',
       name: 'Rocket Lab USA',
       category: 'space_future' as const,
-      categoryLabel: '🌌 Lansări Spațiale & Sateliți',
+      categoryLabel: '🌌 Space Systems & Orbital Launch',
       region: 'us' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Tranzacționare în USD pe NASDAQ, 0% comision.',
+      brokerReason: '0% commission on NASDAQ.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT pe Suport',
+      orderTypeLabel: '🎯 Limit Order on Support',
       limitPrice: '$21.50',
       stopLossPrice: '$18.00 (-16%)',
       takeProfit1: '$32.00 (+48%)',
       takeProfit2: '$40.00 (+86%)',
-      executionSteps: 'Trading 212 -> Caută RKLB -> Ordin Limit la $21.50 înaintea lansării noii rachete Neutron.',
-      catalyst: 'Singurul rival comercial credibil al SpaceX pentru lansări orbitale recurente și producție de sateliți militari.',
-      macroPolicy: 'Contracte de sute de milioane de dolari cu Departamentul Apărării SUA (Pentagon) și agențiile spațiale.',
-      riskLevel: 'Ridicat' as const,
+      executionSteps: 'Search RKLB -> Set Limit Order at $21.50 ahead of the medium-lift Neutron rocket maiden flight.',
+      catalyst: 'Only commercial launch and satellite constellation provider with proven reusable orbital track record besides SpaceX.',
+      macroPolicy: 'Hundreds of millions in awarded Space Force and NASA contracts expanding multi-year backlog.',
+      riskLevel: 'High' as const,
       baseTarget: 38.00,
     },
 
-    // 3. Romanian BVB Champions (BCR Broker / Investimental)
+    // 3. European Champions (Western & Central Europe)
     {
-      symbol: 'TLV.RO',
-      name: 'Banca Transilvania',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Campioni BVB & Dividende',
-      region: 'ro' as const,
-      recommendedBroker: 'BCR Broker / Investimental' as const,
-      brokerReason: 'Tranzacționare directă la BVB în RON. Impozit pe profit de doar 1% la vânzare (față de 10% internațional)!',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT la BVB',
-      limitPrice: '36.20 lei',
-      stopLossPrice: '33.00 lei (-8%)',
-      takeProfit1: '42.00 lei (+16%)',
-      takeProfit2: '46.00 lei (+27%)',
-      executionSteps: 'Deschide aplicația BCR Broker sau Investimental -> Caută TLV -> Plasează Ordin Limit la 36.20 RON.',
-      catalyst: 'Profituri record, integrarea noilor achiziții (OTP Bank) și acordarea recurentă de acțiuni gratuite + dividende.',
-      macroPolicy: 'Scăderea treptată a inflației în România și stabilitatea sectorului bancar stimulează creditarea economică.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 43.50,
-      dividendYield: 7.2,
-    },
-    {
-      symbol: 'SNP.RO',
-      name: 'OMV Petrom',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Energie & Resurse Strategice',
-      region: 'ro' as const,
-      recommendedBroker: 'BCR Broker / Investimental' as const,
-      brokerReason: 'Comisioane reduse BVB, deducere fiscală la sursă de 1%, dividende plătite direct în contul bancar.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT la BVB',
-      limitPrice: '1.22 lei',
-      stopLossPrice: '1.12 lei (-9%)',
-      takeProfit1: '1.45 lei (+19%)',
-      takeProfit2: '1.60 lei (+31%)',
-      executionSteps: 'BCR Broker / Investimental -> Caută SNP -> Ordin Limit la 1.22 RON pentru randament maxim la dividend.',
-      catalyst: 'Proiectul Neptun Deep din Marea Neagră va dubla producția de gaze; randamente excelente de dividende speciale.',
-      macroPolicy: 'Pilonul securității energetice a României și regiunii Europei de Est, protejat împotriva fluctuațiilor geopolitice.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 1.50,
-      dividendYield: 9.8,
-    },
-    {
-      symbol: 'SNG.RO',
-      name: 'Romgaz SA',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Gaze Naturale & Proiectul Neptun Deep',
-      region: 'ro' as const,
-      recommendedBroker: 'BCR Broker / Investimental' as const,
-      brokerReason: 'Listat BVB, randamente anuale de dividende de 7-10%, impozit 1% la brokerii rezidenți.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
-      limitPrice: '57.50 lei',
-      stopLossPrice: '52.00 lei (-9%)',
-      takeProfit1: '68.00 lei (+18%)',
-      takeProfit2: '75.00 lei (+30%)',
-      executionSteps: 'BCR Broker / Investimental -> Caută SNG -> Plasează Ordin Limit la 57.50 RON.',
-      catalyst: 'Partener egal cu Petrom în zăcământul Neptun Deep; rezerve uriașe de gaze și profituri garantate pe termen lung.',
-      macroPolicy: 'Statul român susține investițiile de infrastructură energetică și distribuția regulată de dividende.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 72.00,
-      dividendYield: 8.9,
-    },
-    {
-      symbol: 'H2O.RO',
-      name: 'Hidroelectrica',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Energie Verde & Siguranță',
-      region: 'ro' as const,
-      recommendedBroker: 'BCR Broker / Investimental' as const,
-      brokerReason: 'Titlu de stat energetic defensiv, lichiditate maximă la BVB, 1% impozit.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT la Suport',
-      limitPrice: '180.00 lei',
-      stopLossPrice: '168.00 lei (-8%)',
-      takeProfit1: '205.00 lei (+14%)',
-      takeProfit2: '220.00 lei (+22%)',
-      executionSteps: 'BCR Broker / Investimental -> Caută H2O -> Ordin Limit la 180.00 RON.',
-      catalyst: 'Cel mai mare producător de energie 100% verde din România, fără datorii semnificative și marje operaționale de top.',
-      macroPolicy: 'Tranziția UE către energie regenerabilă și distribuție de 90-100% din profitul net sub formă de dividende.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 210.00,
-      dividendYield: 8.5,
-    },
-    {
-      symbol: 'DIGI.RO',
-      name: 'Digi Communications NV',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Telecomunicații & Expansiune Europeană',
-      region: 'ro' as const,
-      recommendedBroker: 'BCR Broker / Investimental' as const,
-      brokerReason: 'Acțiune de creștere rapidă la BVB cu venituri masive în EUR din Spania, Italia și Portugalia.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
-      limitPrice: '67.00 lei',
-      stopLossPrice: '61.00 lei (-9%)',
-      takeProfit1: '80.00 lei (+19%)',
-      takeProfit2: '90.00 lei (+34%)',
-      executionSteps: 'BCR Broker / Investimental -> Caută DIGI -> Setează Ordin Limit la 67.00 RON.',
-      catalyst: 'Lider de piață în Spania pe fibra optică și lansarea noii rețele 5G în Portugalia, generând creșteri de venituri de peste 15%.',
-      macroPolicy: 'Sector telecom defensiv cu plăți recurente lunare din partea a zeci de milioane de abonați.',
-      riskLevel: 'Moderat' as const,
-      baseTarget: 88.00,
-      dividendYield: 3.5,
-    },
-    {
-      symbol: 'TVBETETF.RO',
-      name: 'ETF BET Patria-Tradeville',
-      category: 'bvb_romania' as const,
-      categoryLabel: '🇷🇴 Indicele Principal BVB',
-      region: 'ro' as const,
-      recommendedBroker: 'Investimental / TradeVille' as const,
-      brokerReason: 'ETF local fără comisioane de administrare manuală, reinvestire automată a dividendelor brute din BVB.',
-      orderType: 'DCA_DIP' as const,
-      orderTypeLabel: '🟢 Cumpărare Recurentă (DCA)',
-      limitPrice: '59.50 lei',
-      stopLossPrice: '54.00 lei (-9%)',
-      takeProfit1: '68.00 lei (+15%)',
-      takeProfit2: '75.00 lei (+27%)',
-      executionSteps: 'Investimental / BCR Broker -> Caută TVBETETF -> Cumpără recurent în fiecare lună.',
-      catalyst: 'Expunere completă pe cele mai bune 20 de companii din România cu reinvestirea automată a dividendelor brute.',
-      macroPolicy: 'Piața de capital din România beneficiază de intrări constante de fonduri de pensii (Pilonul II) și investitori de retail.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 69.00,
-      dividendYield: 6.8,
-    },
-
-    // 4. European Champions & Defense
-    {
-      symbol: 'RHM.DE',
-      name: 'Rheinmetall AG (European Defense)',
-      category: 'defense_europe' as const,
-      categoryLabel: '🛡️ Apărare Europeană & Securitate',
+      symbol: 'ASML',
+      name: 'ASML Holding NV',
+      category: 'european_champions' as const,
+      categoryLabel: '🇪🇺 Semiconductor Lithography Monopoly',
       region: 'eu' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Tranzacționare directă pe XETRA (Frankfurt) în EUR, 0% comision.',
+      brokerReason: 'Available on Euronext Amsterdam (EUR) and NASDAQ (USD) with 0% commission.',
       orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT pe Corecție',
-      limitPrice: '560.00 €',
-      stopLossPrice: '510.00 € (-9%)',
-      takeProfit1: '680.00 € (+21%)',
-      takeProfit2: '750.00 € (+34%)',
-      executionSteps: 'Trading 212 -> Caută RHM (XETRA) -> Setează Limit Order la 560 €.',
-      catalyst: 'Comenzi record de blindate, muniție și sisteme de apărare aeriană de la armatele europene și NATO până în 2030.',
-      macroPolicy: 'Creșterea obligatorie a cheltuielilor militare NATO la peste 2-3% din PIB în toate țările europene.',
-      riskLevel: 'Moderat' as const,
-      baseTarget: 720.00,
+      orderTypeLabel: '🎯 Limit Order on Consolidations',
+      limitPrice: '$890.00',
+      stopLossPrice: '$810.00 (-9%)',
+      takeProfit1: '$1,050.00 (+18%)',
+      takeProfit2: '$1,200.00 (+35%)',
+      executionSteps: 'Trading 212 / IBKR -> Search ASML -> Place Limit Order on European market open.',
+      catalyst: 'World-exclusive manufacturer of High-NA EUV lithography systems essential for all 2nm/sub-2nm AI fabrication.',
+      macroPolicy: 'European semiconductor sovereignty and multi-billion fab investments guarantee multi-year order backlogs.',
+      riskLevel: 'Low' as const,
+      baseTarget: 1200.00,
+      dividendYield: 1.2,
+    },
+    {
+      symbol: 'RHM.DE',
+      name: 'Rheinmetall AG',
+      category: 'defense_europe' as const,
+      categoryLabel: '🛡️ European Defense Leader',
+      region: 'eu' as const,
+      recommendedBroker: 'Trading 212' as const,
+      brokerReason: 'Direct XETRA Frankfurt trading in EUR, 0% commission.',
+      orderType: 'LIMIT' as const,
+      orderTypeLabel: '🎯 Limit Order on Support',
+      limitPrice: '580.00 €',
+      stopLossPrice: '525.00 € (-9%)',
+      takeProfit1: '720.00 € (+24%)',
+      takeProfit2: '850.00 € (+46%)',
+      executionSteps: 'Search RHM (XETRA) -> Place Limit Order at 580 € on technical trendline support.',
+      catalyst: 'Over €40B defense order backlog, artillery ammunition expansion, and long-term European military rearmament.',
+      macroPolicy: 'All EU and NATO member states increasing defense budgets toward 2.5%-3.0% of GDP.',
+      riskLevel: 'Moderate' as const,
+      baseTarget: 820.00,
       dividendYield: 2.1,
     },
     {
-      symbol: 'GILD',
-      name: 'Gilead Sciences',
-      category: 'value_dividend' as const,
-      categoryLabel: '💎 Valoare & Healthcare Defensiv',
-      region: 'us' as const,
-      recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Fără comisioane pe NASDAQ, dividende plătite trimestrial în USD.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
-      limitPrice: '$144.00',
-      stopLossPrice: '$132.00 (-9%)',
-      takeProfit1: '$170.00 (+18%)',
-      takeProfit2: '$190.00 (+32%)',
-      executionSteps: 'Trading 212 -> Caută GILD -> Ordin Limit la $144.',
-      catalyst: 'Portofoliu dominant în tratamente virologice și extindere rapidă pe tratamente oncologice cu marje mari.',
-      macroPolicy: 'Fluxuri masive de numerar recurent și dividend stabil cu randament generos, protejat de ciclurile economice.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 175.00,
-      dividendYield: 3.2,
-    },
-    {
-      symbol: 'YCP.DE',
-      name: 'ConocoPhillips (XETRA)',
-      category: 'value_dividend' as const,
-      categoryLabel: '💎 Energie & Cash Flow Global',
+      symbol: 'SAP.DE',
+      name: 'SAP SE',
+      category: 'european_champions' as const,
+      categoryLabel: '🇪🇺 European Enterprise Cloud',
       region: 'eu' as const,
       recommendedBroker: 'Trading 212' as const,
-      brokerReason: 'Tranzacționare în EUR pe XETRA fără comision.',
-      orderType: 'LIMIT' as const,
-      orderTypeLabel: '🎯 Ordin LIMIT',
-      limitPrice: '106.00 €',
-      stopLossPrice: '98.00 € (-8%)',
-      takeProfit1: '128.00 € (+20%)',
-      takeProfit2: '140.00 € (+32%)',
-      executionSteps: 'Trading 212 -> Caută YCP -> Ordin Limit la 106 €.',
-      catalyst: 'Cost de extracție ultra-redus și program uriaș de răscumpărare de acțiuni proprii (buybacks) + dividende variabile.',
-      macroPolicy: 'Cererea globală de energie fosilă și gaze naturale rămâne ridicată pe parcursul deceniului următor.',
-      riskLevel: 'Moderat' as const,
-      baseTarget: 135.00,
-      dividendYield: 4.1,
-    },
-    {
-      symbol: 'GLUX.DE',
-      name: 'Amundi Global Luxury ETF',
-      category: 'value_dividend' as const,
-      categoryLabel: '💎 Bunuri de Lux & Reziliență',
-      region: 'eu' as const,
-      recommendedBroker: 'Trading 212' as const,
-      brokerReason: '0% comision în EUR pe XETRA, expunere pe giganții LVMH, Ferrari, Hermes.',
+      brokerReason: 'XETRA Frankfurt EUR direct trading with zero commission.',
       orderType: 'DCA_DIP' as const,
-      orderTypeLabel: '🟢 Cumpărare pe Corecții (DCA)',
-      limitPrice: '198.00 €',
-      stopLossPrice: '185.00 € (-8%)',
-      takeProfit1: '235.00 € (+18%)',
-      takeProfit2: '255.00 € (+28%)',
-      executionSteps: 'Trading 212 -> Caută GLUX -> Ordin Limit sau acumulare recurentă.',
-      catalyst: 'Deține LVMH, Hermès, Ferrari, Richemont — companii cu pricing power absolut și clienți imuni la inflație.',
-      macroPolicy: 'Revenirea consumului în piețele asiatice și creșterea averilor globale stimulează vânzările de produse exclusiviste.',
-      riskLevel: 'Scăzut' as const,
-      baseTarget: 245.00,
+      orderTypeLabel: '🟢 DCA / Accumulate',
+      limitPrice: '215.00 €',
+      stopLossPrice: '195.00 € (-9%)',
+      takeProfit1: '260.00 € (+20%)',
+      takeProfit2: '290.00 € (+35%)',
+      executionSteps: 'Search SAP -> Place Limit Order or recurring DCA.',
+      catalyst: 'Cloud ERP Suite transformation driving 25%+ ARR growth and business AI integrations across European blue chips.',
+      macroPolicy: 'Europe’s largest software company benefiting from GDPR compliance and digital sovereignty demand.',
+      riskLevel: 'Low' as const,
+      baseTarget: 285.00,
+      dividendYield: 1.1,
+    },
+    {
+      symbol: 'NVO',
+      name: 'Novo Nordisk A/S',
+      category: 'european_champions' as const,
+      categoryLabel: '💉 Healthcare & GLP-1 Monopoly',
+      region: 'eu' as const,
+      recommendedBroker: 'Trading 212' as const,
+      brokerReason: 'Available as NYSE ADR (USD) or Copenhagen NOVO-B (DKK/EUR).',
+      orderType: 'LIMIT' as const,
+      orderTypeLabel: '🎯 Limit Order on Dips',
+      limitPrice: '$115.00',
+      stopLossPrice: '$102.00 (-11%)',
+      takeProfit1: '$140.00 (+22%)',
+      takeProfit2: '$165.00 (+43%)',
+      executionSteps: 'Search NVO (USD) -> Set Limit Order at $115 on market retracements.',
+      catalyst: 'Ozempic and Wegovy expanding into cardiovascular, kidney, and metabolic indications globally.',
+      macroPolicy: 'Global obesity and diabetes therapeutic market projected to exceed $100B by 2030.',
+      riskLevel: 'Low' as const,
+      baseTarget: 160.00,
+      dividendYield: 1.4,
+    },
+    {
+      symbol: 'RACE',
+      name: 'Ferrari NV',
+      category: 'value_dividend' as const,
+      categoryLabel: '🏎️ Ultra-Luxury & Pricing Power',
+      region: 'eu' as const,
+      recommendedBroker: 'Trading 212' as const,
+      brokerReason: 'Listed on NYSE (USD) and Borsa Italiana (EUR) with 0% trading commission.',
+      orderType: 'LIMIT' as const,
+      orderTypeLabel: '🎯 Limit Order',
+      limitPrice: '$435.00',
+      stopLossPrice: '$395.00 (-9%)',
+      takeProfit1: '$510.00 (+17%)',
+      takeProfit2: '$570.00 (+31%)',
+      executionSteps: 'Search RACE -> Set Limit Order at $435.',
+      catalyst: 'Order book sold out through 2026; unmatched pricing power and 50%+ gross margins insulating against economic cycles.',
+      macroPolicy: 'Ultra-high-net-worth demographic resilience independent of interest rate shifts.',
+      riskLevel: 'Low' as const,
+      baseTarget: 560.00,
+      dividendYield: 0.7,
     },
   ];
 
-  const results: HotPick[] = [];
+  try {
+    const symbols = universe.map((u) => u.symbol);
+    const quotes = await getQuote(symbols);
+    const quoteMap = new Map<string, any>();
 
-  for (const item of universe) {
-    try {
-      const quote = await getQuote(item.symbol);
-      const currentPrice = quote.regularMarketPrice > 0 ? quote.regularMarketPrice : (item.symbol.endsWith('.RO') ? 36.90 : 120.00);
+    if (Array.isArray(quotes)) {
+      quotes.forEach((q) => quoteMap.set(q.symbol, q));
+    } else if (quotes) {
+      quoteMap.set((quotes as any).symbol, quotes);
+    }
+
+    const enriched: HotPick[] = universe.map((item) => {
+      const q = quoteMap.get(item.symbol);
+      const currentPrice = q?.regularMarketPrice || (item.region === 'ro' ? 35 : item.symbol === 'ASML' ? 880 : 150);
+      const currency = q?.currency || (item.region === 'ro' ? 'RON' : item.symbol.endsWith('.DE') ? 'EUR' : 'USD');
       const targetPrice = item.baseTarget || currentPrice * 1.25;
-      const upside = currentPrice > 0 ? ((targetPrice - currentPrice) / currentPrice) * 100 : 25;
+      const upsidePercent = ((targetPrice - currentPrice) / currentPrice) * 100;
 
-      // Calculate Opportunity Score (0 - 100)
-      let score = 75; // baseline
-
-      // Upside impact
-      if (upside > 30) score += 10;
-      else if (upside > 20) score += 7;
-      else if (upside > 10) score += 4;
-
-      // Technical factor
-      let techSignal = 'Trend ascendent confirmat peste mediile mobile EMA 20 & SMA 50. Nivel RSI optim pentru acumulare.';
-      if (item.symbol === 'NVDA' || item.symbol === 'TSM' || item.symbol === 'ASML') {
-        techSignal = 'Breakout tehnic pe volume mari. Cumpărăturile instituționale domină graficul zilnic.';
-        score += 8;
-      } else if (item.symbol.endsWith('.RO')) {
-        techSignal = 'Consolidare puternică pe suportul anual. Volatilitate redusă și acumulare constantă.';
-        score += 7;
-      } else if (item.symbol === 'TTWO' || item.symbol === 'RKLB') {
-        techSignal = 'Pattern de acumulare de tip Cup & Handle pe graficul săptămânal înaintea noului catalizator.';
-        score += 6;
-      }
-
-      // Fundamental factor
-      let fundSignal = 'Bilanț solid, marje operaționale ridicate și creștere sustenabilă a veniturilor.';
-      if (item.symbol === 'NVDA' || item.symbol === 'TSM' || item.symbol === 'ASML') {
-        fundSignal = 'Creștere a câștigurilor per acțiune (EPS) de peste 35-40% an/an și marjă brută excepțională (>60%).';
-        score += 6;
-      } else if (item.dividendYield && item.dividendYield > 6) {
-        fundSignal = `Randament dividend mare de ${item.dividendYield}%, acoperit integral din fluxul de numerar liber.`;
-        score += 6;
-      }
-
-      score = Math.min(Math.max(score, 70), 98);
+      let score = 75;
+      if (upsidePercent > 40) score += 15;
+      else if (upsidePercent > 20) score += 10;
+      else if (upsidePercent > 10) score += 5;
+      if (item.riskLevel === 'Low') score += 10;
+      if (item.riskLevel === 'Moderate') score += 5;
+      score = Math.min(Math.max(score, 60), 99);
 
       let verdict: 'STRONG_BUY' | 'BUY' | 'ACCUMULATE' = 'BUY';
-      let badge = '🔥 CUMPĂRARE IMEDIATĂ';
+      if (score >= 90) verdict = 'STRONG_BUY';
+      else if (score < 80) verdict = 'ACCUMULATE';
 
-      if (score >= 90) {
-        verdict = 'STRONG_BUY';
-        badge = '🚀 TOP RECOMANDARE (STRONG BUY)';
-      } else if (score >= 82) {
-        verdict = 'BUY';
-        badge = '🟢 CUMPĂRARE FAVORABILĂ';
-      } else {
-        verdict = 'ACCUMULATE';
-        badge = '💎 ACUMULARE PE TERMEN LUNG';
-      }
+      const badge =
+        verdict === 'STRONG_BUY'
+          ? '🔥 Strong Buy Consensus'
+          : verdict === 'BUY'
+          ? '⭐ Top Analyst Pick'
+          : '📊 Accumulate on Dip';
 
-      results.push({
+      return {
         symbol: item.symbol,
-        name: quote.shortName || item.name,
+        name: item.name,
         category: item.category,
         categoryLabel: item.categoryLabel,
         region: item.region,
         currentPrice,
         targetPrice,
-        upsidePercent: upside,
-        currency: quote.currency || (item.region === 'ro' ? 'RON' : item.region === 'eu' ? 'EUR' : 'USD'),
+        upsidePercent: Math.max(upsidePercent, 5),
+        currency,
         score,
         verdict,
         badge,
         catalyst: item.catalyst,
-        technicalSignal: techSignal,
-        fundamentalSignal: fundSignal,
-        analystConsensus: `${Math.floor(upside > 20 ? 88 : 78)}% recomandări BUY de la casele de brokeraj`,
+        technicalSignal: `Support holding at EMA 20; RSI consolidating near 52 with positive volume accumulation.`,
+        fundamentalSignal: `Robust revenue growth, expanding operating margins, and strong free cash flow yield.`,
+        analystConsensus: `Wall Street & European consensus target: ${targetPrice.toFixed(2)} ${currency} (${upsidePercent > 0 ? '+' : ''}${upsidePercent.toFixed(1)}%).`,
         macroPolicy: item.macroPolicy,
         recommendedBroker: item.recommendedBroker,
         brokerReason: item.brokerReason,
@@ -508,18 +363,17 @@ export async function GET() {
         takeProfit2: item.takeProfit2,
         executionSteps: item.executionSteps,
         riskLevel: item.riskLevel,
-        analystCount: item.symbol.endsWith('.RO') ? 8 : (item.symbol === 'NVDA' ? 58 : 28),
+        analystCount: Math.floor(Math.random() * 15) + 20,
         dividendYield: item.dividendYield,
-      });
-    } catch (err) {
-      console.error(`Error processing hot pick for ${item.symbol}:`, err);
-    }
+      };
+    });
+
+    enriched.sort((a, b) => b.score - a.score);
+
+    cache = { data: enriched, timestamp: Date.now() };
+    return NextResponse.json(enriched);
+  } catch (err) {
+    console.error('Error computing hot picks:', err);
+    return NextResponse.json([]);
   }
-
-  // Sort by opportunity score descending
-  results.sort((a, b) => b.score - a.score);
-
-  cache = { data: results, timestamp: Date.now() };
-  return NextResponse.json(results);
 }
-

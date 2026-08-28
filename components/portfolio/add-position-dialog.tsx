@@ -30,7 +30,7 @@ export function AddPositionDialog() {
   const [buyPrice, setBuyPrice] = useState('');
   const [buyDate, setBuyDate] = useState(new Date().toISOString().split('T')[0]);
   const [currency, setCurrency] = useState('USD');
-  const [broker, setBroker] = useState(activeBroker === 'all' ? 'bcr' : activeBroker);
+  const [broker, setBroker] = useState(activeBroker === 'all' ? 't212' : activeBroker);
   const [exchange, setExchange] = useState('');
   const [notes, setNotes] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -89,7 +89,7 @@ export function AddPositionDialog() {
     setShares('');
     setBuyPrice('');
     setBuyDate(new Date().toISOString().split('T')[0]);
-    setCurrency('RON');
+    setCurrency('USD');
     setExchange('');
     setNotes('');
   };
