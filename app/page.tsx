@@ -14,6 +14,7 @@ import { BrokerTabs } from '@/components/portfolio/broker-tabs';
 import { AllocationChart } from '@/components/portfolio/allocation-chart';
 import { WatchlistPanel } from '@/components/watchlist/watchlist-panel';
 import { PriceAlertManager } from '@/components/alerts/price-alert-manager';
+import { MarketOpportunities } from '@/components/discovery/market-opportunities';
 import { MarketIntelligence } from '@/components/intelligence/market-intelligence';
 import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from '@/lib/i18n';
@@ -221,6 +222,9 @@ export default function DashboardPage() {
           </button>
         </Link>
       </div>
+
+      {/* Market Discovery: Top US, Top Europe & Top Romania */}
+      <MarketOpportunities />
 
       {/* Market Intelligence: Analyst Consensus, When to Buy, Geopolitics & News */}
       <MarketIntelligence />

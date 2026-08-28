@@ -18,9 +18,13 @@ public class MainActivity extends BridgeActivity {
             settings.setBuiltInZoomControls(false);
             settings.setDisplayZoomControls(false);
             settings.setSupportZoom(false);
-            // Proper viewport
+            // Proper viewport & prevent wobble
             settings.setUseWideViewPort(true);
             settings.setLoadWithOverviewMode(true);
+            // Disable scrollbars and rubber-band overscroll
+            webView.setHorizontalScrollBarEnabled(false);
+            webView.setVerticalScrollBarEnabled(false);
+            webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
             // Dark background to avoid white flash
             webView.setBackgroundColor(android.graphics.Color.parseColor("#09090b"));
         }
