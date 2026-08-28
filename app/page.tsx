@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
-import { calculatePositionPL, calculatePortfolioSummary, calculateAllocation, DEFAULT_FX_RATES } from '@/lib/portfolio-utils';
+import { calculatePositionPL, calculatePortfolioSummary, calculateAllocation, getFXRate, DEFAULT_FX_RATES } from '@/lib/portfolio-utils';
 import { PortfolioSummary } from '@/components/portfolio/portfolio-summary';
 import { HoldingsTable } from '@/components/portfolio/holdings-table';
 import { AddPositionDialog } from '@/components/portfolio/add-position-dialog';
@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const t = useTranslation(locale);
   const allDbPositions = useLiveQuery(() => db.positions.toArray()) || [];
   const customBrokers = useLiveQuery(() => db.brokers.toArray()) || [];
-  const [positionsWithQuotes, setPositionsWithQuotes] = useState<PositionWithQuote[]>([]);
+  const [quotesMap, setQuotesMap] = useState<Record<string, StockQuote>>({});
   const [fxRates, setFxRates] = useState<Record<string, number>>(DEFAULT_FX_RATES);
   const [loading, setLoading] = useState(false);
 
@@ -35,10 +35,12 @@ export default function DashboardPage() {
   }, []);
 
   // Filter positions by activeBroker
-  const filteredPositions = allDbPositions.filter((pos) => {
-    if (activeBroker === 'all') return true;
-    return pos.broker === activeBroker;
-  });
+  const filteredPositions = useMemo(() => {
+    return allDbPositions.filter((pos) => {
+      if (activeBroker === 'all') return true;
+      return pos.broker === activeBroker;
+    });
+  }, [allDbPositions, activeBroker]);
 
   // Fetch FX rates
   useEffect(() => {
@@ -47,22 +49,19 @@ export default function DashboardPage() {
         const res = await fetch('/api/fx');
         const data = await res.json();
         if (data && typeof data === 'object') {
-          setFxRates(data);
+          setFxRates((prev) => ({ ...prev, ...data }));
         }
       } catch (err) {
         console.error('Failed to fetch FX rates:', err);
       }
     }
     fetchFX();
-    const interval = setInterval(fetchFX, 120000);
+    const interval = setInterval(fetchFX, 60000);
     return () => clearInterval(interval);
   }, []);
 
   const fetchQuotes = useCallback(async () => {
-    if (filteredPositions.length === 0) {
-      setPositionsWithQuotes([]);
-      return;
-    }
+    if (filteredPositions.length === 0) return;
 
     setLoading(true);
     try {
@@ -72,43 +71,17 @@ export default function DashboardPage() {
       );
       const quotes: StockQuote[] = await res.json();
 
-      const quotesMap: Record<string, StockQuote> = {};
       if (Array.isArray(quotes)) {
-        quotes.forEach((q) => { quotesMap[q.symbol] = q; });
+        const newMap: Record<string, StockQuote> = {};
+        quotes.forEach((q) => { if (q && q.symbol) newMap[q.symbol] = q; });
+        setQuotesMap((prev) => ({ ...prev, ...newMap }));
       }
-
-      const enriched = filteredPositions.map((pos) => {
-        const quote = quotesMap[pos.symbol];
-        if (!quote || !quote.regularMarketPrice) {
-          // Fallback for private or unlisted assets
-          return calculatePositionPL(
-            pos,
-            pos.buyPrice,
-            0,
-            0,
-            pos.notes || pos.symbol,
-            baseCurrency,
-            fxRates
-          );
-        }
-        return calculatePositionPL(
-          pos,
-          quote.regularMarketPrice,
-          quote.regularMarketChange,
-          quote.regularMarketChangePercent,
-          quote.shortName,
-          baseCurrency,
-          fxRates
-        );
-      });
-
-      setPositionsWithQuotes(enriched);
     } catch (err) {
       console.error('Failed to fetch quotes:', err);
     } finally {
       setLoading(false);
     }
-  }, [filteredPositions, baseCurrency, fxRates]);
+  }, [filteredPositions]);
 
   useEffect(() => {
     fetchQuotes();
@@ -116,44 +89,66 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [fetchQuotes]);
 
-  // Calculate Cash for the active view
-  const brokersMap = new Map<string, Broker>();
-  DEFAULT_BROKERS.forEach((b) => brokersMap.set(b.id, { ...b }));
-  customBrokers.forEach((b) => brokersMap.set(b.id, { ...b }));
-  const allBrokers = Array.from(brokersMap.values());
+  // Synchronous Effective Positions calculation (Instant reaction to baseCurrency and fxRates)
+  const effectivePositions = useMemo(() => {
+    return filteredPositions.map((pos) => {
+      const quote = quotesMap[pos.symbol];
+      const currentPrice = (quote && quote.regularMarketPrice) ? quote.regularMarketPrice : pos.buyPrice;
+      const dayChange = (quote && quote.regularMarketChange != null) ? quote.regularMarketChange : 0;
+      const dayChangePercent = (quote && quote.regularMarketChangePercent != null) ? quote.regularMarketChangePercent : 0;
+      const shortName = quote?.shortName || pos.notes || pos.symbol;
 
-  let totalCash = 0;
-  if (activeBroker === 'all') {
-    totalCash = allBrokers.filter(b => b.id !== 'all').reduce((sum, b) => sum + (b.cash || 0), 0);
-  } else {
-    const b = allBrokers.find(b => b.id === activeBroker);
-    totalCash = b?.cash || 0;
-  }
+      return calculatePositionPL(
+        pos,
+        currentPrice,
+        dayChange,
+        dayChangePercent,
+        shortName,
+        baseCurrency,
+        fxRates
+      );
+    });
+  }, [filteredPositions, quotesMap, baseCurrency, fxRates]);
 
-  const instantPositions = filteredPositions.map((pos) => {
-    return calculatePositionPL(
-      pos,
-      pos.buyPrice,
-      0,
-      0,
-      pos.notes || pos.symbol,
-      baseCurrency,
-      fxRates
-    );
-  });
+  // Calculate Cash converted into baseCurrency
+  const totalCash = useMemo(() => {
+    const brokersMap = new Map<string, Broker>();
+    DEFAULT_BROKERS.forEach((b) => brokersMap.set(b.id, { ...b }));
+    customBrokers.forEach((b) => brokersMap.set(b.id, { ...b }));
+    const allBrokers = Array.from(brokersMap.values());
 
-  const effectivePositions = positionsWithQuotes.length > 0 ? positionsWithQuotes : instantPositions;
+    if (activeBroker === 'all') {
+      return allBrokers
+        .filter((b) => b.id !== 'all')
+        .reduce((sum, b) => {
+          const defaultCurr = b.id === 't212' ? 'USD' : 'RON';
+          const rate = getFXRate(b.cashCurrency || defaultCurr, baseCurrency, fxRates);
+          return sum + (b.cash || 0) * rate;
+        }, 0);
+    } else {
+      const b = allBrokers.find((b) => b.id === activeBroker);
+      const defaultCurr = b?.id === 't212' ? 'USD' : 'RON';
+      const rate = getFXRate(b?.cashCurrency || defaultCurr, baseCurrency, fxRates);
+      return (b?.cash || 0) * rate;
+    }
+  }, [customBrokers, activeBroker, baseCurrency, fxRates]);
 
-  const rawSummary = calculatePortfolioSummary(effectivePositions);
-  const summary = {
+  const rawSummary = useMemo(() => {
+    return calculatePortfolioSummary(effectivePositions);
+  }, [effectivePositions]);
+
+  const summary = useMemo(() => ({
     ...rawSummary,
     cashBalance: totalCash,
     totalWithCash: rawSummary.totalValue + totalCash,
-  };
-  const allocation = calculateAllocation(effectivePositions);
+  }), [rawSummary, totalCash]);
+
+  const allocation = useMemo(() => {
+    return calculateAllocation(effectivePositions);
+  }, [effectivePositions]);
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full min-w-0">
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -174,20 +169,24 @@ export default function DashboardPage() {
       </div>
 
       {/* Broker Navigation Tabs & Cash Display */}
-      <BrokerTabs />
+      <div className="w-full min-w-0">
+        <BrokerTabs />
+      </div>
 
       {/* Summary cards */}
-      <PortfolioSummary summary={summary} currency={baseCurrency} />
+      <div className="w-full min-w-0">
+        <PortfolioSummary summary={summary} currency={baseCurrency} />
+      </div>
 
       {/* Main content grid: Positions + Sidebar */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 w-full min-w-0">
         {/* Holdings table - takes 2 columns */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 w-full min-w-0">
           <HoldingsTable positions={effectivePositions} />
         </div>
 
         {/* Right sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-6 w-full min-w-0">
           <AllocationChart data={allocation} currency={baseCurrency} />
           <WatchlistPanel />
           <PriceAlertManager />

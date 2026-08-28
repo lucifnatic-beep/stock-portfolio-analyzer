@@ -2,25 +2,38 @@ import type { Position, PositionWithQuote, PortfolioSummary } from '@/types';
 
 export const DEFAULT_FX_RATES: Record<string, number> = {
   'USD_RON': 4.51,
+  'RON_USD': 0.2217,
   'EUR_RON': 5.25,
+  'RON_EUR': 0.1904,
+  'GBP_RON': 6.04,
+  'RON_GBP': 0.1655,
   'EUR_USD': 1.16,
-  'USD_EUR': 0.86,
-  'RON_USD': 0.22,
-  'RON_EUR': 0.19,
+  'USD_EUR': 0.862,
+  'GBP_USD': 1.34,
+  'USD_GBP': 0.746,
+  'EUR_GBP': 0.865,
+  'GBP_EUR': 1.155,
   'USD_USD': 1,
   'EUR_EUR': 1,
+  'GBP_GBP': 1,
   'RON_RON': 1,
 };
 
-export function getFXRate(fromCurrency: string, toCurrency: string, rates: Record<string, number> = {}): number {
-  if (fromCurrency === toCurrency) return 1;
+export function getFXRate(fromCurrency: string = 'USD', toCurrency: string = 'USD', rates: Record<string, number> = {}): number {
+  const from = (fromCurrency || 'USD').toUpperCase();
+  const to = (toCurrency || 'USD').toUpperCase();
+  if (from === to) return 1;
+
   const mergedRates = { ...DEFAULT_FX_RATES, ...rates };
-  const key = `${fromCurrency.toUpperCase()}_${toCurrency.toUpperCase()}`;
-  if (mergedRates[key]) return mergedRates[key];
+  const directKey = `${from}_${to}`;
+  if (mergedRates[directKey] && mergedRates[directKey] > 0) return mergedRates[directKey];
+
+  const reverseKey = `${to}_${from}`;
+  if (mergedRates[reverseKey] && mergedRates[reverseKey] > 0) return 1 / mergedRates[reverseKey];
 
   // Derive via USD
-  const toUSD = fromCurrency === 'USD' ? 1 : mergedRates[`${fromCurrency}_USD`] || (1 / (mergedRates[`USD_${fromCurrency}`] || 1));
-  const fromUSDToTarget = toCurrency === 'USD' ? 1 : mergedRates[`USD_${toCurrency}`] || 1;
+  const toUSD = from === 'USD' ? 1 : mergedRates[`${from}_USD`] || (1 / (mergedRates[`USD_${from}`] || 1));
+  const fromUSDToTarget = to === 'USD' ? 1 : mergedRates[`USD_${to}`] || (1 / (mergedRates[`${to}_USD`] || 1));
   return toUSD * fromUSDToTarget;
 }
 

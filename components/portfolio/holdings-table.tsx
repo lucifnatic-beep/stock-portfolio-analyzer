@@ -66,7 +66,84 @@ export function HoldingsTable({ positions }: Props) {
         </span>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        {/* Mobile View: High-density full-width card list */}
+        <div className="sm:hidden divide-y divide-border/30">
+          {positions.map((pos) => {
+            const isPositive = pos.profitLoss >= 0;
+            const isDayPositive = pos.dayChange >= 0;
+
+            return (
+              <div key={pos.id || pos.symbol + pos.broker} className="p-3.5 space-y-2.5 hover:bg-muted/20 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/stocks/${pos.symbol}`}
+                        className="font-bold text-sm text-foreground hover:text-indigo-400 flex items-center gap-1"
+                      >
+                        <span>{pos.symbol}</span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground opacity-50" />
+                      </Link>
+                      {activeBroker === 'all' && getBrokerBadge(pos.broker)}
+                    </div>
+                    <span className="text-[11px] text-muted-foreground block truncate max-w-[170px]">
+                      {pos.shortName}
+                    </span>
+                  </div>
+
+                  <div className="text-right space-y-0.5">
+                    <span className="font-bold font-mono text-sm text-foreground block">
+                      {formatCurrency(pos.convertedMarketValue || pos.marketValue, baseCurrency)}
+                    </span>
+                    <div className="flex items-center justify-end gap-1 font-mono text-[11px]">
+                      <span className={`font-semibold flex items-center ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {isPositive ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
+                        {formatPercent(pos.profitLossPercent)}
+                      </span>
+                      <span className="text-muted-foreground">
+                        ({formatCurrency(Math.abs(pos.convertedProfitLoss || pos.profitLoss), baseCurrency)})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3-Column Key Numbers Grid */}
+                <div className="grid grid-cols-3 gap-2 bg-muted/40 p-2 rounded-lg text-xs font-mono border border-border/40">
+                  <div>
+                    <span className="text-[9px] text-muted-foreground block uppercase">Shares</span>
+                    <span className="text-foreground font-medium">{formatNumber(pos.shares, pos.shares < 1 ? 4 : 2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-muted-foreground block uppercase">Avg Cost</span>
+                    <span className="text-muted-foreground">{formatCurrency(pos.convertedBuyPrice || pos.buyPrice, baseCurrency)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-muted-foreground block uppercase">Current</span>
+                    <span className="text-foreground font-semibold">{formatCurrency(pos.convertedCurrentPrice || pos.currentPrice, baseCurrency)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-0.5 text-[10px] text-muted-foreground">
+                  <span className={isDayPositive ? 'text-emerald-400' : 'text-rose-400'}>
+                    Day: {formatPercent(pos.dayChangePercent)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] text-muted-foreground/60 hover:text-rose-400 hover:bg-rose-500/10"
+                    onClick={() => handleDelete(pos.id)}
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop View: Full 9-column data table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border/50 text-muted-foreground bg-muted/10 font-medium">
@@ -197,7 +274,7 @@ export function HoldingsTable({ positions }: Props) {
                         size="icon"
                         className="h-7 w-7 text-muted-foreground/60 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                         onClick={() => handleDelete(pos.id)}
-                        title="Șterge poziția"
+                        title="Remove position"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

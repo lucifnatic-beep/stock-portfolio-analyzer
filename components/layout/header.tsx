@@ -106,15 +106,16 @@ export function Header() {
             </Button>
 
             {/* Currency toggle */}
-            <div className="flex items-center rounded-lg border bg-muted/50 p-0.5 text-[10px] sm:text-xs">
+            <div className="flex items-center rounded-lg border bg-muted/60 p-0.5 text-[11px] sm:text-xs">
               {(['USD', 'EUR', 'GBP', 'RON'] as const).map((curr) => (
                 <button
                   key={curr}
+                  type="button"
                   onClick={() => setBaseCurrency(curr)}
-                  className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-semibold transition-colors ${
+                  className={`px-1.5 sm:px-2 py-1 rounded-md font-bold transition-all cursor-pointer select-none active:scale-95 ${
                     baseCurrency === curr
-                      ? 'bg-background text-foreground shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-emerald-500 text-white shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                   }`}
                 >
                   {curr}

@@ -58,10 +58,10 @@ export function BrokerTabs() {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="space-y-3 w-full min-w-0">
+      <div className="flex items-center justify-between flex-wrap gap-2 w-full min-w-0">
         {/* Scrollable Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-muted/70 rounded-xl border overflow-x-auto max-w-full">
+        <div className="flex items-center gap-1.5 p-1 bg-muted/70 rounded-xl border overflow-x-auto w-full max-w-full no-scrollbar">
           {allBrokers.map((broker) => {
             const isActive = activeBroker === broker.id;
             return (

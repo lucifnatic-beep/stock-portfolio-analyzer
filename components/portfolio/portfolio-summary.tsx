@@ -66,18 +66,18 @@ export function PortfolioSummary({ summary, currency = 'RON' }: Props) {
   ];
 
   return (
-    <div className={`grid gap-4 sm:grid-cols-2 ${cards.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
+    <div className={`grid gap-3 sm:gap-4 grid-cols-2 ${cards.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} w-full min-w-0`}>
       {cards.map((card) => (
-        <Card key={card.title}>
-          <CardContent className="p-4">
+        <Card key={card.title} className="w-full min-w-0 overflow-hidden shadow-xs">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{card.title}</p>
-              <card.icon className={`h-4 w-4 ${card.color}`} />
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{card.title}</p>
+              <card.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 ${card.color}`} />
             </div>
-            <div className="mt-2">
-              <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
+            <div className="mt-1 sm:mt-2">
+              <p className={`text-base sm:text-2xl font-bold font-mono tracking-tight truncate ${card.color}`}>{card.value}</p>
               {card.subtitle && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate">
                   {card.subtitle}
                 </p>
               )}

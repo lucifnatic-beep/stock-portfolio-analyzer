@@ -34,7 +34,7 @@ export function AllocationChart({ data, currency = 'RON' }: Props) {
   const totalPortfolioValue = data.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden w-full min-w-0">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base flex items-center gap-2">
           <PieIcon className="h-4 w-4 text-indigo-500" />
