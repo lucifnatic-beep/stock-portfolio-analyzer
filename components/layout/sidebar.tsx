@@ -18,6 +18,7 @@ import {
   Moon,
   Wallet,
   ShieldCheck,
+  Trash2,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -252,6 +253,42 @@ export function Sidebar() {
             <FileUp className="h-4 w-4 shrink-0 text-muted-foreground" />
             {sidebarOpen && <span>{t('common.importJSON')}</span>}
           </Button>
+
+          {sidebarOpen && (
+            <div className="pt-1 space-y-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 justify-start gap-2 px-3 h-8"
+                onClick={async () => {
+                  if (confirm('Load demo starter portfolio?')) {
+                    const { seedSamplePortfolio } = await import('@/lib/seed');
+                    await seedSamplePortfolio();
+                  }
+                }}
+              >
+                <Sparkles className="h-4 w-4 shrink-0" />
+                <span>Load Demo Portfolio</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/10 justify-start gap-2 px-3 h-8"
+                onClick={async () => {
+                  if (confirm('Clear all local portfolio data and start with an empty portfolio?')) {
+                    await db.positions.clear();
+                    await db.watchlist.clear();
+                    await db.priceAlerts.clear();
+                    window.location.reload();
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+                <span>Clear / Reset Portfolio</span>
+              </Button>
+            </div>
+          )}
 
           {/* Toggle Collapse Button - desktop only */}
           <Button
