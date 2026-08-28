@@ -130,20 +130,34 @@ export default function DashboardPage() {
     totalCash = b?.cash || 0;
   }
 
-  const rawSummary = calculatePortfolioSummary(positionsWithQuotes);
+  const instantPositions = filteredPositions.map((pos) => {
+    return calculatePositionPL(
+      pos,
+      pos.buyPrice,
+      0,
+      0,
+      pos.notes || pos.symbol,
+      baseCurrency,
+      fxRates
+    );
+  });
+
+  const effectivePositions = positionsWithQuotes.length > 0 ? positionsWithQuotes : instantPositions;
+
+  const rawSummary = calculatePortfolioSummary(effectivePositions);
   const summary = {
     ...rawSummary,
     cashBalance: totalCash,
     totalWithCash: rawSummary.totalValue + totalCash,
   };
-  const allocation = calculateAllocation(positionsWithQuotes);
+  const allocation = calculateAllocation(effectivePositions);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 sm:space-y-8 pb-12">
       {/* Page header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('portfolio.title')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('portfolio.title')}</h1>
           <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
             <span>{filteredPositions.length} active positions</span>
             <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400">
@@ -152,7 +166,7 @@ export default function DashboardPage() {
             </span>
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <T212ImportDialog onImportSuccess={fetchQuotes} />
           <BCRImportDialog onImportSuccess={fetchQuotes} />
           <AddPositionDialog />
@@ -169,7 +183,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Holdings table - takes 2 columns */}
         <div className="lg:col-span-2 space-y-6">
-          <HoldingsTable positions={positionsWithQuotes} />
+          <HoldingsTable positions={effectivePositions} />
         </div>
 
         {/* Right sidebar */}

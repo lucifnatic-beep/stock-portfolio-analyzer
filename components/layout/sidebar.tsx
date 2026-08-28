@@ -13,8 +13,8 @@ import { db } from '@/lib/db';
 const navItems = [
   { href: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
   { href: '/hot-picks', icon: Flame, labelKey: 'nav.hotPicks' },
-  { href: '/#watchlist', icon: Star, labelKey: 'nav.watchlist' },
-  { href: '/#alerts', icon: Bell, labelKey: 'nav.alerts' },
+  { href: '/watchlist', icon: Star, labelKey: 'nav.watchlist' },
+  { href: '/alerts', icon: Bell, labelKey: 'nav.alerts' },
 ];
 
 export function Sidebar() {

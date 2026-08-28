@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Moon, Sun, Globe, TrendingUp, Menu } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -67,60 +68,73 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center gap-4 px-4 lg:px-6">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} title="Comută bara laterală">
-            <Menu className="h-5 w-5" />
-          </Button>
-
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top,0px)]">
+        <div className="flex h-14 items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 max-w-full">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-emerald-500" />
-            <span className="text-lg font-bold hidden sm:inline">StockPulse</span>
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} title="Toggle sidebar" className="h-9 w-9">
+              <Menu className="h-5 w-5" />
+            </Button>
+
+            <Link href="/" className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500 shrink-0" />
+              <span className="text-base sm:text-lg font-bold tracking-tight text-foreground">StockPulse</span>
+            </Link>
           </div>
 
-          <div className="flex-1" />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Search trigger - compact icon on mobile, input on desktop */}
+            <Button
+              variant="outline"
+              className="hidden sm:flex relative w-48 md:w-60 justify-start text-xs sm:text-sm text-muted-foreground h-9"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="mr-2 h-3.5 w-3.5" />
+              {t('nav.search')}
+              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 md:flex">
+                Ctrl + K
+              </kbd>
+            </Button>
 
-          {/* Search trigger */}
-          <Button
-            variant="outline"
-            className="relative w-60 justify-start text-sm text-muted-foreground"
-            onClick={() => setSearchOpen(true)}
-          >
-            <Search className="mr-2 h-4 w-4" />
-            {t('nav.search')}
-            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-              Ctrl + K
-            </kbd>
-          </Button>
-
-          {/* Currency toggle */}
-          <div className="flex items-center rounded-lg border bg-muted/50 p-0.5 text-xs">
-            {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
-              <button
-                key={curr}
-                onClick={() => setBaseCurrency(curr)}
-                className={`px-2 py-1 rounded-md font-semibold transition-colors ${
-                  baseCurrency === curr
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {curr}
-              </button>
-            ))}
-          </div>
-
-          {/* Theme toggle */}
-          {mounted && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              title={t('common.darkMode')}
+              className="sm:hidden h-9 w-9 text-muted-foreground hover:text-foreground"
+              onClick={() => setSearchOpen(true)}
+              title="Search stocks"
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <Search className="h-4 w-4" />
             </Button>
-          )}
+
+            {/* Currency toggle */}
+            <div className="flex items-center rounded-lg border bg-muted/50 p-0.5 text-[11px] sm:text-xs">
+              {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
+                <button
+                  key={curr}
+                  onClick={() => setBaseCurrency(curr)}
+                  className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-semibold transition-colors ${
+                    baseCurrency === curr
+                      ? 'bg-background text-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {curr}
+                </button>
+              ))}
+            </div>
+
+            {/* Theme toggle */}
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                title={t('common.darkMode')}
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
