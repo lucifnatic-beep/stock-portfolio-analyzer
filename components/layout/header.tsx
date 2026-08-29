@@ -146,15 +146,15 @@ export function Header() {
       {/* Search modal */}
       {searchOpen && (
         <div className="fixed inset-0 z-50">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setSearchOpen(false)} />
-          <div className="fixed left-1/2 top-[15%] z-50 w-full max-w-lg -translate-x-1/2">
-            <div className="rounded-lg border bg-card shadow-2xl">
-              <div className="flex items-center border-b px-3">
-                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setSearchOpen(false)} />
+          <div className="fixed left-1/2 top-[12%] z-50 w-[94%] max-w-lg -translate-x-1/2">
+            <div className="rounded-2xl border border-border/70 bg-card shadow-2xl overflow-hidden">
+              <div className="flex items-center border-b px-4 py-1">
+                <Search className="mr-2.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <input
                   autoFocus
                   className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
-                  placeholder={t('nav.search')}
+                  placeholder="Search stocks (e.g. AAPL, NVDA, ASML, Tesla)..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -163,9 +163,17 @@ export function Header() {
                     }
                   }}
                 />
+                {query && (
+                  <button
+                    onClick={() => { setQuery(''); setResults([]); }}
+                    className="p-1 rounded-full text-muted-foreground hover:text-foreground text-xs"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
               {(results.length > 0 || loading) && (
-                <div className="max-h-80 overflow-y-auto p-2">
+                <div className="max-h-80 overflow-y-auto p-2 space-y-1">
                   {loading && (
                     <div className="py-6 text-center text-sm text-muted-foreground">
                       {t('common.loading')}
@@ -174,12 +182,16 @@ export function Header() {
                   {results.map((result) => (
                     <button
                       key={result.symbol}
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-accent"
+                      className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors text-left group cursor-pointer"
                       onClick={() => selectStock(result.symbol)}
                     >
-                      <span className="font-semibold text-foreground">{result.symbol}</span>
-                      <span className="truncate text-muted-foreground">{result.shortName}</span>
-                      <span className="ml-auto text-xs text-muted-foreground">{result.exchange}</span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="font-bold text-foreground font-mono">{result.symbol}</span>
+                        <span className="truncate text-xs text-muted-foreground">{result.shortName || result.longName}</span>
+                      </div>
+                      <span className="shrink-0 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/50 group-hover:border-emerald-500/30 group-hover:text-emerald-400 transition-colors">
+                        {result.exchangeDisplay || result.exchange}
+                      </span>
                     </button>
                   ))}
                 </div>

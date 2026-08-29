@@ -34,9 +34,9 @@ import { formatCurrency } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import type { HotPick } from '@/app/api/market/hot-picks/route';
 
-type CategoryFilter = 'all' | 'new_only' | 'ai_tech' | 'bvb_romania' | 'space_future' | 'defense_europe' | 'value_dividend';
-type BrokerFilter = 'all' | 't212' | 'bvb_local';
-type RegionFilter = 'all' | 'ro' | 'us' | 'eu';
+type CategoryFilter = 'all' | 'new_only' | 'ai_tech' | 'space_future' | 'defense_europe' | 'value_dividend';
+type BrokerFilter = 'all' | 't212' | 'ibkr' | 'revolut' | 'degiro';
+type RegionFilter = 'all' | 'us' | 'eu';
 
 export default function HotPicksPage() {
   const { baseCurrency } = useAppStore();
@@ -94,8 +94,8 @@ export default function HotPicksPage() {
       return;
     }
 
-    const defaultShares = pick.region === 'ro' ? 100 : (pick.currentPrice > 200 ? 2 : 10);
-    const broker = pick.region === 'ro' ? (pick.symbol === 'TVBETETF.RO' ? 'investimental' : 'bcr') : 't212';
+    const defaultShares = pick.currentPrice > 200 ? 2 : 10;
+    const broker = 't212';
 
     await db.positions.add({
       symbol: pick.symbol,
@@ -103,7 +103,7 @@ export default function HotPicksPage() {
       buyPrice: pick.currentPrice,
       buyDate: new Date().toISOString().split('T')[0],
       currency: pick.currency,
-      exchange: pick.region === 'ro' ? 'BVB' : (pick.region === 'eu' ? 'XETRA' : 'NASDAQ'),
+      exchange: pick.region === 'eu' ? 'XETRA' : 'NASDAQ',
       broker,
       notes: `Added from Hot Picks Radar (${pick.categoryLabel})`,
       createdAt: new Date().toISOString(),
@@ -119,8 +119,7 @@ export default function HotPicksPage() {
       if (activeCategory === 'new_only' && isOwned) return false;
       if (activeCategory !== 'all' && activeCategory !== 'new_only' && p.category !== activeCategory) return false;
 
-      if (activeBroker === 't212' && !p.recommendedBroker.includes('Trading 212')) return false;
-      if (activeBroker === 'bvb_local' && !p.recommendedBroker.includes('BCR') && !p.recommendedBroker.includes('Investimental')) return false;
+      if (activeBroker !== 'all' && !p.recommendedBroker.toLowerCase().includes(activeBroker === 't212' ? 'trading 212' : activeBroker === 'ibkr' ? 'interactive' : activeBroker)) return false;
 
       if (activeRegion !== 'all' && p.region !== activeRegion) return false;
       return true;
@@ -134,7 +133,6 @@ export default function HotPicksPage() {
     { id: 'all', label: 'All Opportunities' },
     { id: 'new_only', label: '🔥 New Only (Not Owned)' },
     { id: 'ai_tech', label: '🚀 AI & Tech' },
-    { id: 'bvb_romania', label: '🇷🇴 BVB Romania' },
     { id: 'space_future', label: '🌌 Space & Satellites' },
     { id: 'defense_europe', label: '🛡️ European Defense' },
     { id: 'value_dividend', label: '💎 Value & Dividends' },
@@ -142,8 +140,10 @@ export default function HotPicksPage() {
 
   const brokerOptions: { id: BrokerFilter; label: string }[] = [
     { id: 'all', label: 'All Brokers' },
-    { id: 't212', label: '🌐 Trading 212 (US & EU)' },
-    { id: 'bvb_local', label: '🇷🇴 BCR / Investimental (BVB)' },
+    { id: 't212', label: '📊 Trading 212' },
+    { id: 'ibkr', label: '🏦 Interactive Brokers' },
+    { id: 'revolut', label: '💳 Revolut' },
+    { id: 'degiro', label: '📈 Degiro' },
   ];
 
   const topPick = picks[0];
@@ -163,7 +163,7 @@ export default function HotPicksPage() {
               <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                 AI Radar: Hot Stocks to Buy
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/20 text-orange-400 border border-orange-500/30">
-                  Global & BVB Screener
+                  US & Europe Screener
                 </span>
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -200,20 +200,20 @@ export default function HotPicksPage() {
         <div className="grid md:grid-cols-2 gap-3 text-xs">
           <div className="p-3 rounded-xl bg-card/60 border border-border/50 space-y-1">
             <span className="font-bold text-foreground flex items-center gap-1.5">
-              <span>🇷🇴</span>
-              <span>Romanian Stocks (BVB: TLV, SNP, SNG, H2O, DIGI, ETF BET)</span>
+              <span>🌐</span>
+              <span>Trading 212</span>
             </span>
             <p className="text-muted-foreground leading-relaxed">
-              Buy through <strong className="text-foreground">BCR Broker</strong> or <strong className="text-foreground">Investimental / TradeVille</strong>. Benefit from <strong className="text-emerald-400">reduced 1% capital gains tax</strong> (vs 10%), automatic withholding, and RON dividends with no FX fees.
+              Benefit from <strong className="text-emerald-400">0% trading commission</strong>, fractional shares, ultra-low FX (0.15%), and easy <strong className="text-foreground">Limit Orders</strong> from your phone for US & EU stocks.
             </p>
           </div>
           <div className="p-3 rounded-xl bg-card/60 border border-border/50 space-y-1">
             <span className="font-bold text-foreground flex items-center gap-1.5">
-              <span>🌐</span>
-              <span>US & European Stocks (NVDA, TSM, PLTR, SPCX, RKLB, ASML, RHM)</span>
+              <span>🏦</span>
+              <span>Interactive Brokers</span>
             </span>
             <p className="text-muted-foreground leading-relaxed">
-              Buy through <strong className="text-foreground">Trading 212</strong>. Benefit from <strong className="text-emerald-400">0% trading commission</strong>, fractional shares, ultra-low FX (0.15%), and easy <strong className="text-foreground">Limit Orders</strong> from your phone.
+              Professional-grade platform with access to <strong className="text-emerald-400">global markets</strong>, advanced order types, and competitive margin rates. Ideal for larger portfolios.
             </p>
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function HotPicksPage() {
                 {picks.length} stocks
               </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                US, BVB Romania & Europe
+                US & Europe
               </p>
             </div>
             <Globe className="h-6 w-6 text-sky-400 opacity-80" />
@@ -347,7 +347,7 @@ export default function HotPicksPage() {
         <div className="py-20 text-center space-y-3">
           <RefreshCw className="h-8 w-8 animate-spin text-orange-400 mx-auto" />
           <p className="text-sm text-muted-foreground">
-            Running multi-factor scanner across all globally listed and BVB stocks...
+            Running multi-factor scanner across all US & European stocks...
           </p>
         </div>
       ) : (

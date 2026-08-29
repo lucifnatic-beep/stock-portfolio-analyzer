@@ -3,9 +3,31 @@ import { DEFAULT_BROKERS } from '@/types';
 
 let isSeedingInProgress = false;
 
+async function cleanLegacyData() {
+  try {
+    // Remove all .RO positions (old Romanian stocks)
+    const allPositions = await db.positions.toArray();
+    const roPositionIds = allPositions
+      .filter(p => p.symbol.endsWith('.RO') || p.broker === 'bcr' || p.broker === 'investimental')
+      .map(p => p.id)
+      .filter((id): id is number => id !== undefined);
+    
+    if (roPositionIds.length > 0) {
+      await db.positions.bulkDelete(roPositionIds);
+      console.log(`Cleaned ${roPositionIds.length} legacy Romanian positions`);
+    }
+
+    // Remove old brokers
+    await db.brokers.where('id').anyOf(['bcr', 'investimental']).delete();
+  } catch (err) {
+    console.error('Legacy data cleanup error:', err);
+  }
+}
+
 export async function initDefaultBrokers() {
   if (isSeedingInProgress) return;
   isSeedingInProgress = true;
+  await cleanLegacyData();
 
   try {
     await db.transaction('rw', [db.brokers], async () => {

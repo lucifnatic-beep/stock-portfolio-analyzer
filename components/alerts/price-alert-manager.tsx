@@ -107,7 +107,7 @@ export function PriceAlertManager() {
             {t('alerts.title')}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Link href="/alerts" className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">
+            <Link href="/alerts" className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">
               Manage ({alerts.length}) →
             </Link>
             <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowForm(!showForm)}>

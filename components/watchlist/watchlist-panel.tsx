@@ -68,7 +68,7 @@ export function WatchlistPanel() {
             <Star className="h-4 w-4 text-amber-500" />
             {t('watchlist.title')}
           </CardTitle>
-          <Link href="/watchlist" className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">
+          <Link href="/watchlist" className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
             View All ({watchlist.length}) →
           </Link>
         </div>

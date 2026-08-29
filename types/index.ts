@@ -62,6 +62,7 @@ export interface SearchResult {
   shortName: string;
   longName?: string;
   exchange: string;
+  exchangeDisplay?: string;
   type: string;
 }
 

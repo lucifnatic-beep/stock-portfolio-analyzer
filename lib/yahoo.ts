@@ -22,18 +22,12 @@ function setCache(key: string, data: unknown, ttlSeconds: number) {
 const FALLBACK_PRICES: Record<string, { price: number; currency: string; name: string; change?: number; changePercent?: number; exchange?: string }> = {
   'SPX': { price: 120.18, currency: 'EUR', name: 'SpaceX', change: 3.13, changePercent: 2.67, exchange: 'Trading 212' },
   'TSFA': { price: 364.50, currency: 'EUR', name: 'Taiwan Semiconductor (EUR)', change: 3.82, changePercent: 1.06, exchange: 'XETRA' },
-  'TLV.RO': { price: 36.90, currency: 'RON', name: 'Banca Transilvania', change: 0.20, changePercent: 0.54, exchange: 'BVB' },
-  'SNP.RO': { price: 1.25, currency: 'RON', name: 'OMV Petrom', change: -0.018, changePercent: -1.42, exchange: 'BVB' },
-  'FP.RO': { price: 0.399, currency: 'RON', name: 'Fondul Proprietatea', change: -0.0025, changePercent: -0.64, exchange: 'BVB' },
-  'COTE.RO': { price: 77.40, currency: 'RON', name: 'Conpet SA', change: 0.20, changePercent: 0.26, exchange: 'BVB' },
-  'H2O.RO': { price: 185.00, currency: 'RON', name: 'Hidroelectrica', change: 0.20, changePercent: 0.11, exchange: 'BVB' },
-  'TVBETETF.RO': { price: 60.01, currency: 'RON', name: 'FDI ETF BET Patria-Tradeville', change: -0.76, changePercent: -1.25, exchange: 'BVB' },
 };
 
 function getFallbackQuote(symbol: string): StockQuote {
   const fb = FALLBACK_PRICES[symbol.toUpperCase()] || {
     price: 0,
-    currency: symbol.endsWith('.RO') ? 'RON' : (symbol.endsWith('.DE') ? 'EUR' : 'USD'),
+    currency: symbol.endsWith('.DE') ? 'EUR' : 'USD',
     name: symbol,
   };
 
@@ -52,7 +46,7 @@ function getFallbackQuote(symbol: string): StockQuote {
     fiftyTwoWeekHigh: fb.price * 1.2 || 0,
     fiftyTwoWeekLow: fb.price * 0.8 || 0,
     currency: fb.currency,
-    exchange: fb.exchange || (symbol.endsWith('.RO') ? 'BVB' : (symbol.endsWith('.DE') ? 'XETRA' : 'NASDAQ')),
+    exchange: fb.exchange || (symbol.endsWith('.DE') ? 'XETRA' : 'NASDAQ'),
   };
 }
 
@@ -82,7 +76,7 @@ export async function getQuote(symbol: string): Promise<StockQuote> {
       fiftyTwoWeekHigh: (result.fiftyTwoWeekHigh as number) ?? 0,
       fiftyTwoWeekLow: (result.fiftyTwoWeekLow as number) ?? 0,
       marketCap: result.marketCap as number | undefined,
-      currency: (result.currency as string) ?? (symbol.endsWith('.RO') ? 'RON' : 'USD'),
+      currency: (result.currency as string) ?? 'USD',
       exchange: (result.exchange as string) ?? '',
     };
 

@@ -9,18 +9,16 @@ import {
   Flame,
   Star,
   Bell,
-  FileDown,
-  FileUp,
+  Download,
+  Upload,
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
-  Sun,
-  Moon,
-  Wallet,
-  ShieldCheck,
   Trash2,
+  Shield,
+  FileText,
+  Info,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/stores/app-store';
@@ -31,10 +29,8 @@ import { db } from '@/lib/db';
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar, locale, baseCurrency, setBaseCurrency } = useAppStore();
-  const { theme, setTheme } = useTheme();
   const t = useTranslation(locale);
 
-  // Live queries for badge counts
   const positionsCount = useLiveQuery(() => db.positions.count()) ?? 0;
   const watchlistCount = useLiveQuery(() => db.watchlist.count()) ?? 0;
   const alertsCount = useLiveQuery(() => db.priceAlerts.count()) ?? 0;
@@ -50,9 +46,9 @@ export function Sidebar() {
     {
       href: '/hot-picks',
       icon: Flame,
-      label: 'HOT Picks AI',
-      badge: 'HOT 🔥',
-      badgeClass: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+      label: 'Discover',
+      badge: 'AI',
+      badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
       color: 'text-orange-400',
     },
     {
@@ -81,7 +77,7 @@ export function Sidebar() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `stockpulse-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -89,7 +85,7 @@ export function Sidebar() {
   const handleImport = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json,.csv';
+    input.accept = '.json';
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -110,7 +106,7 @@ export function Sidebar() {
         }
         window.location.reload();
       } catch (err) {
-        alert('Error importing file.');
+        alert('Error importing file. Make sure it\'s a valid StockPulse backup.');
       }
     };
     input.click();
@@ -118,7 +114,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Backdrop Overlay */}
+      {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
           onClick={toggleSidebar}
@@ -135,12 +131,12 @@ export function Sidebar() {
         )}
       >
         <div className="flex flex-col gap-3 p-3">
-          {/* Header Card in Drawer */}
+          {/* Brand Card */}
           {sidebarOpen && (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 space-y-1.5">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-indigo-500/5 to-transparent border border-emerald-500/20 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                <span className="font-bold text-xs bg-gradient-to-r from-emerald-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
                   StockPulse AI
                 </span>
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -154,7 +150,7 @@ export function Sidebar() {
             </div>
           )}
 
-          {/* Navigation Links */}
+          {/* Navigation */}
           <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -171,15 +167,14 @@ export function Sidebar() {
                     className={cn(
                       'flex items-center justify-between px-3 py-2.5 rounded-xl transition-all text-xs font-semibold select-none cursor-pointer',
                       isActive
-                        ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 shadow-xs'
+                        ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/30 shadow-xs'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     )}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <item.icon className={cn('h-4 w-4 shrink-0', item.color)} />
+                      <item.icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-emerald-400' : item.color)} />
                       {sidebarOpen && <span className="truncate">{item.label}</span>}
                     </div>
-
                     {sidebarOpen && item.badge && (
                       <Badge
                         variant="secondary"
@@ -197,7 +192,7 @@ export function Sidebar() {
             })}
           </nav>
 
-          {/* Currency Selector inside Drawer */}
+          {/* Currency Selector */}
           {sidebarOpen && (
             <div className="space-y-1.5 pt-2 border-t border-border/40">
               <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider px-1">
@@ -210,7 +205,7 @@ export function Sidebar() {
                     type="button"
                     onClick={() => setBaseCurrency(curr)}
                     className={cn(
-                      'py-1 rounded-lg font-bold transition-all text-center cursor-pointer',
+                      'py-1.5 rounded-lg font-bold transition-all text-center cursor-pointer',
                       baseCurrency === curr
                         ? 'bg-emerald-500 text-white shadow-xs'
                         : 'text-muted-foreground hover:text-foreground'
@@ -222,46 +217,40 @@ export function Sidebar() {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Footer controls & Collapse Toggle */}
-        <div className="p-3 border-t border-border/40 space-y-1 bg-muted/10">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              'w-full text-xs text-muted-foreground hover:text-foreground h-8',
-              sidebarOpen ? 'justify-start gap-2 px-3' : 'justify-center px-0 w-8 mx-auto'
-            )}
-            onClick={handleExport}
-            title={!sidebarOpen ? t('common.exportJSON') : undefined}
-          >
-            <FileDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-            {sidebarOpen && <span>{t('common.exportJSON')}</span>}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              'w-full text-xs text-muted-foreground hover:text-foreground h-8',
-              sidebarOpen ? 'justify-start gap-2 px-3' : 'justify-center px-0 w-8 mx-auto'
-            )}
-            onClick={handleImport}
-            title={!sidebarOpen ? t('common.importJSON') : undefined}
-          >
-            <FileUp className="h-4 w-4 shrink-0 text-muted-foreground" />
-            {sidebarOpen && <span>{t('common.importJSON')}</span>}
-          </Button>
-
+          {/* Data Management */}
           {sidebarOpen && (
-            <div className="pt-1 space-y-1">
+            <div className="space-y-1 pt-2 border-t border-border/40">
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider px-1">
+                Data Management
+              </span>
+
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-xs text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 justify-start gap-2 px-3 h-8"
+                className="w-full text-xs text-muted-foreground hover:text-foreground h-9 justify-start gap-2.5 px-3"
+                onClick={handleExport}
+              >
+                <Download className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span>Backup Portfolio</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-muted-foreground hover:text-foreground h-9 justify-start gap-2.5 px-3"
+                onClick={handleImport}
+              >
+                <Upload className="h-4 w-4 shrink-0 text-indigo-400" />
+                <span>Restore Backup</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10 justify-start gap-2.5 px-3 h-9"
                 onClick={async () => {
-                  if (confirm('Load demo starter portfolio?')) {
+                  if (confirm('Load a demo portfolio with sample US & EU positions?')) {
                     const { seedSamplePortfolio } = await import('@/lib/seed');
                     await seedSamplePortfolio();
                   }
@@ -274,9 +263,9 @@ export function Sidebar() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-xs text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/10 justify-start gap-2 px-3 h-8"
+                className="w-full text-xs text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/10 justify-start gap-2.5 px-3 h-9"
                 onClick={async () => {
-                  if (confirm('Clear all local portfolio data and start with an empty portfolio?')) {
+                  if (confirm('Clear all local portfolio data? This cannot be undone.')) {
                     await db.positions.clear();
                     await db.watchlist.clear();
                     await db.priceAlerts.clear();
@@ -285,17 +274,45 @@ export function Sidebar() {
                 }}
               >
                 <Trash2 className="h-4 w-4 shrink-0" />
-                <span>Clear / Reset Portfolio</span>
+                <span>Clear All Data</span>
               </Button>
             </div>
           )}
+        </div>
 
-          {/* Toggle Collapse Button - desktop only */}
+        {/* Footer */}
+        <div className="p-3 border-t border-border/40 space-y-1 bg-muted/10">
+          {sidebarOpen && (
+            <div className="space-y-1 mb-2">
+              <Link
+                href="/privacy"
+                onClick={() => { if (window.innerWidth < 1024) toggleSidebar(); }}
+                className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <Shield className="h-3.5 w-3.5 shrink-0" />
+                <span>Privacy Policy</span>
+              </Link>
+              <Link
+                href="/terms"
+                onClick={() => { if (window.innerWidth < 1024) toggleSidebar(); }}
+                className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5 shrink-0" />
+                <span>Terms of Service</span>
+              </Link>
+              <div className="flex items-center gap-2 px-3 py-1.5 text-[10px] text-muted-foreground/60">
+                <Info className="h-3 w-3 shrink-0" />
+                <span>StockPulse AI v1.0.0</span>
+              </div>
+            </div>
+          )}
+
+          {/* Collapse Toggle — desktop only */}
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              'hidden lg:flex w-full text-xs text-muted-foreground hover:text-foreground mt-2 border border-border/40',
+              'hidden lg:flex w-full text-xs text-muted-foreground hover:text-foreground border border-border/40',
               sidebarOpen ? 'justify-between px-3' : 'justify-center px-0 h-8 w-8 mx-auto'
             )}
             onClick={toggleSidebar}
@@ -307,7 +324,7 @@ export function Sidebar() {
                 <PanelLeftClose className="h-4 w-4" />
               </>
             ) : (
-              <PanelLeftOpen className="h-4 w-4 text-indigo-400" />
+              <PanelLeftOpen className="h-4 w-4 text-emerald-400" />
             )}
           </Button>
         </div>

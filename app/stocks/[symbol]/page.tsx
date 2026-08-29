@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Star, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -20,6 +20,7 @@ import { db } from '@/lib/db';
 import type { OHLCV, StockQuote, StockFundamentals } from '@/types';
 
 export default function StockPage() {
+  const router = useRouter();
   const params = useParams();
   const symbol = (params.symbol as string)?.toUpperCase() || '';
   const { timeframe, locale } = useAppStore();

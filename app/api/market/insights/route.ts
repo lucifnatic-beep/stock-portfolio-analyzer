@@ -11,8 +11,8 @@ export async function GET() {
   }
 
   try {
-    // 1. Fetch analyst recommendations for key global holdings
-    const globalSymbols = ['NVDA', 'TSM', 'PLTR', 'TTWO', 'ASML', 'RKLB', 'GILD', 'UHS', 'COP'];
+    // 1. Fetch analyst recommendations for key US & European giants
+    const keySymbols = ['NVDA', 'TSM', 'PLTR', 'MSFT', 'AAPL', 'AMZN', 'ASML', 'SAP.DE', 'RHM.DE', 'NVO', 'RACE', 'RKLB'];
     const analystInsights: Array<{
       symbol: string;
       name: string;
@@ -23,10 +23,11 @@ export async function GET() {
       analystCount: number;
       verdict: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'SELL';
       source: string;
+      region: 'us' | 'eu';
     }> = [];
 
     await Promise.all(
-      globalSymbols.map(async (sym) => {
+      keySymbols.map(async (sym) => {
         try {
           const q = await yahooFinance.quoteSummary(sym, {
             modules: ['financialData', 'price'],
@@ -35,8 +36,9 @@ export async function GET() {
           const current = q.price?.regularMarketPrice || 0;
           const target = q.financialData?.targetMeanPrice || current * 1.15;
           const rec = q.financialData?.recommendationKey || 'buy';
-          const count = q.financialData?.numberOfAnalystOpinions || 28;
+          const count = q.financialData?.numberOfAnalystOpinions || 25;
           const upside = current > 0 ? ((target - current) / current) * 100 : 0;
+          const isEu = sym.endsWith('.DE') || sym.endsWith('.PA') || sym.endsWith('.AS') || sym === 'ASML' || sym === 'NVO' || sym === 'RACE';
 
           let verdict: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'SELL' = 'BUY';
           if (rec.includes('strong_buy') || upside > 25) verdict = 'STRONG_BUY';
@@ -53,61 +55,14 @@ export async function GET() {
             recommendation: rec.replace(/_/g, ' ').toUpperCase(),
             analystCount: count,
             verdict,
-            source: 'Wall Street Consensus (TipRanks / FactSet / Zacks)',
+            source: isEu ? 'European & Wall Street Consensus' : 'Wall Street Consensus (TipRanks / FactSet / Zacks)',
+            region: isEu ? 'eu' : 'us',
           });
         } catch (e) {}
       })
     );
 
-    // 2. Romanian BVB analyst outlook
-    const bvbInsights = [
-      {
-        symbol: 'TLV.RO',
-        name: 'Banca Transilvania',
-        currentPrice: 36.90,
-        targetPrice: 42.50,
-        upsidePercent: 15.17,
-        recommendation: 'STRONG BUY (BT Capital, Wood & Co, Swiss Capital)',
-        analystCount: 8,
-        verdict: 'STRONG_BUY' as const,
-        source: 'BVB Research / Wood & Company',
-      },
-      {
-        symbol: 'SNP.RO',
-        name: 'OMV Petrom',
-        currentPrice: 1.25,
-        targetPrice: 1.45,
-        upsidePercent: 16.00,
-        recommendation: 'BUY (Neptun Deep Catalyst & High Dividends)',
-        analystCount: 6,
-        verdict: 'BUY' as const,
-        source: 'Erste Group / TradeVille Research',
-      },
-      {
-        symbol: 'H2O.RO',
-        name: 'Hidroelectrica',
-        currentPrice: 185.00,
-        targetPrice: 205.00,
-        upsidePercent: 10.81,
-        recommendation: 'BUY (Defensive Green Energy & 9%+ Yield)',
-        analystCount: 7,
-        verdict: 'BUY' as const,
-        source: 'Wood & Company / BT Capital Partners',
-      },
-      {
-        symbol: 'TVBETETF.RO',
-        name: 'ETF BET Patria-TradeVille',
-        currentPrice: 60.42,
-        targetPrice: 68.00,
-        upsidePercent: 12.54,
-        recommendation: 'ACCUMULATE (BET Index Expansion & Low Tax)',
-        analystCount: 5,
-        verdict: 'BUY' as const,
-        source: 'Patria Asset Management / BVB',
-      },
-    ];
-
-    // 3. Multi-Source Live & Curated News Aggregator
+    // 2. Multi-Source Live & Curated News Aggregator
     const multiSourceNews = [
       {
         title: 'Nvidia Blackwell Ultra AI Chips Enter Mass Production as Hyperscalers Double CapEx',
@@ -117,6 +72,7 @@ export async function GET() {
         sentiment: 'positive',
         category: 'AI & Semiconductors',
         summary: 'Big Tech hyperscalers (Microsoft, Meta, Google, Amazon) have committed over $200B in 2026 data center capital expenditures, reinforcing strong pricing power for Nvidia and TSMC.',
+        region: 'us',
       },
       {
         title: 'Federal Reserve & ECB Signal Data-Driven Rate Adjustments Amid Resilient Economic Growth',
@@ -126,6 +82,7 @@ export async function GET() {
         sentiment: 'positive',
         category: 'Macro & Central Banks',
         summary: 'Lower borrowing costs continue to stimulate corporate earnings, equity multiples, and IPO liquidity across US and European exchanges.',
+        region: 'us',
       },
       {
         title: 'European Defense Budgets Surge Past 2.5% GDP: Rheinmetall & Defense Leaders Secure Record Order Backlogs',
@@ -135,15 +92,17 @@ export async function GET() {
         sentiment: 'positive',
         category: 'Geopolitics & Defense',
         summary: 'NATO defense spending expansion drives multi-year guaranteed revenues for European defense contractors including Rheinmetall, BAE Systems, and Leonardo.',
+        region: 'eu',
       },
       {
-        title: 'OMV Petrom & Romgaz Accelerate Neptun Deep Offshore Gas Project, Boosting Long-Term Dividend Visibility',
-        publisher: 'Ziarul Financiar',
-        sourceUrl: 'https://www.zf.ro',
+        title: 'ASML Ships Next-Gen High-NA EUV Systems to Top Global Foundries',
+        publisher: 'Financial Times',
+        sourceUrl: 'https://www.ft.com',
         publishedAt: new Date(Date.now() - 14400000).toISOString(),
         sentiment: 'positive',
-        category: 'BVB & Energy',
-        summary: 'Construction at the Black Sea offshore platform progresses on schedule, reinforcing Romania as the largest natural gas producer in the EU.',
+        category: 'European Tech',
+        summary: 'Dutch semiconductor equipment leader ASML maintains unmatched monopoly on extreme ultraviolet lithography systems required for sub-2nm node architectures.',
+        region: 'eu',
       },
       {
         title: 'TSMC Expands Sub-2nm Foundry Capacity to Meet Insatiable Global Demand for Custom Silicon',
@@ -153,6 +112,7 @@ export async function GET() {
         sentiment: 'positive',
         category: 'Semiconductors',
         summary: 'TSMC reports full foundry utilization driven by Apple, Nvidia, AMD, and custom AI accelerator silicon contracts.',
+        region: 'us',
       },
       {
         title: 'Wall Street Sector Rotation: Value & Dividend Champions Attract Institutional Inflows',
@@ -162,6 +122,7 @@ export async function GET() {
         sentiment: 'neutral',
         category: 'Market Trends',
         summary: 'Investors balance growth portfolios with high-cash-flow dividend stocks and energy infrastructure providing inflation-hedged yields.',
+        region: 'us',
       },
     ];
 
@@ -178,28 +139,23 @@ export async function GET() {
             sentiment: n.title.toLowerCase().includes('surge') || n.title.toLowerCase().includes('gain') || n.title.toLowerCase().includes('beat') || n.title.toLowerCase().includes('high') ? 'positive' : (n.title.toLowerCase().includes('drop') || n.title.toLowerCase().includes('fall') || n.title.toLowerCase().includes('risk') ? 'negative' : 'neutral'),
             category: 'Live Wire',
             summary: 'Live news update sourced from financial media wire.',
+            region: 'us',
           });
         });
       }
     } catch (err) {}
 
-    // 4. Macro & Geopolitical Catalysts (Pillar 3)
+    // 3. Macro & Geopolitical Catalysts
     const geopoliticalAnalysis = [
       {
-        topic: 'Central Bank Policy & Global Liquidity (Fed, ECB, BNR)',
+        topic: 'Central Bank Policy & Global Liquidity (Fed & ECB)',
         impact: 'Bullish for Equities & Multiples',
         summary: 'Gradual interest rate reductions free up institutional capital for equities, supporting valuations for high-growth tech as well as high-dividend compounders.',
         action: 'Accumulate quality tech and dividend leaders on 50-day EMA pullbacks.',
         badge: '🟢 FAVORABLE',
         source: 'Federal Reserve / ECB Monetary Policy Outlook',
-      },
-      {
-        topic: 'Strategic Offshore Energy & Dividend Compounding (Neptun Deep & H2O)',
-        impact: 'High Dividend Stability & Energy Independence',
-        summary: 'Neptun Deep offshore gas provides OMV Petrom (SNP) multi-decade cash flow visibility, while Hidroelectrica (H2O) generates inflation-beating dividend yields above 8-10%.',
-        action: 'Hold long-term and automatically reinvest dividend income.',
-        badge: '🟢 DEFENSIVE / DIVIDEND',
-        source: 'BVB / Ministry of Energy',
+        region: 'global',
+        regionLabel: 'Global Macro',
       },
       {
         topic: 'Global AI Infrastructure & Semiconductor Monopoly (Nvidia & TSMC)',
@@ -208,19 +164,33 @@ export async function GET() {
         action: 'Buy on technical pullbacks when RSI < 45.',
         badge: '🚀 HIGH GROWTH',
         source: 'Morgan Stanley / Goldman Sachs Tech Equity Research',
+        region: 'us',
+        regionLabel: 'US & Tech',
       },
       {
-        topic: 'European & NATO Defense Modernization (Rheinmetall, Leonardo, Lockheed)',
+        topic: 'European & NATO Defense Modernization (Rheinmetall, Leonardo, BAE)',
         impact: 'Multi-Year Secular Expansion',
         summary: 'European nations commit to sustainable 2.5%+ GDP military budgets, creating 5-10 year order backlogs for defense and cybersecurity contractors.',
         action: 'Allocate 5-10% portfolio exposure to European defense leaders.',
         badge: '🛡️ STRATEGIC HEDGE',
         source: 'NATO / Financial Times Defense Analysis',
+        region: 'eu',
+        regionLabel: 'Europe',
+      },
+      {
+        topic: 'Semiconductor Lithography Moat (ASML High-NA EUV)',
+        impact: 'Critical Technology Chokepoint',
+        summary: 'ASML remains the sole provider of EUV photolithography machines required to manufacture next-generation 2nm and 1.4nm nodes.',
+        action: 'Hold as core European tech allocation for long-term compounding.',
+        badge: '💎 MONOPOLY',
+        source: 'Bernstein Research / Bloomberg Intelligence',
+        region: 'eu',
+        regionLabel: 'Europe',
       },
     ];
 
     const result = {
-      analysts: [...analystInsights, ...bvbInsights].sort((a, b) => b.upsidePercent - a.upsidePercent),
+      analysts: analystInsights.sort((a, b) => b.upsidePercent - a.upsidePercent),
       geopolitics: geopoliticalAnalysis,
       news: multiSourceNews.slice(0, 10),
     };

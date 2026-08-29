@@ -14,7 +14,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <main
         className={cn(
-          'flex-1 w-full max-w-full px-3 sm:px-4 lg:px-6 py-4 pb-28 lg:pb-8 transition-all duration-300 min-w-0',
+          'flex-1 w-full max-w-full px-3 sm:px-4 lg:px-6 py-4 pb-20 lg:pb-6 transition-all duration-300 min-w-0',
           sidebarOpen ? 'lg:ml-56' : 'lg:ml-16'
         )}
       >

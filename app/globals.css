@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Mobile touch optimization for Android WebView & iOS (Trading 212 native app feel) */
+/* Mobile touch optimization for Android WebView & iOS (Robinhood/T212 native feel) */
 html, body {
   touch-action: pan-y;
   -webkit-text-size-adjust: 100%;
@@ -11,13 +11,25 @@ html, body {
   width: 100%;
   overscroll-behavior-x: none;
   overscroll-behavior-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Hide all scrollbars across browsers & WebViews */
+/* Smooth transitions globally */
 * {
   -webkit-tap-highlight-color: transparent;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
+}
+
+/* Optimize rendering performance */
+a, button {
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  -webkit-touch-callout: none;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 *::-webkit-scrollbar {
