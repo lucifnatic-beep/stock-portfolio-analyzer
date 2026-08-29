@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Star, Bell } from 'lucide-react';
+import { ArrowLeft, Star, TrendingUp, SlidersHorizontal, ChevronDown, ChevronUp, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ export default function StockPage() {
   const router = useRouter();
   const params = useParams();
   const symbol = (params.symbol as string)?.toUpperCase() || '';
-  const { timeframe, locale } = useAppStore();
+  const { timeframe, setTimeframe, locale } = useAppStore();
   const t = useTranslation(locale);
 
   const [quote, setQuote] = useState<StockQuote | null>(null);
@@ -31,6 +31,8 @@ export default function StockPage() {
   const [fundamentals, setFundamentals] = useState<StockFundamentals | null>(null);
   const [benchmarkHistory, setBenchmarkHistory] = useState<OHLCV[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAdvancedIndicators, setShowAdvancedIndicators] = useState(false);
+  const [livePulse, setLivePulse] = useState(false);
 
   const watchlist = useLiveQuery(() => db.watchlist.toArray()) || [];
   const isInWatchlist = watchlist.some((w) => w.symbol === symbol);
@@ -70,6 +72,15 @@ export default function StockPage() {
     fetchData();
   }, [symbol, timeframe]);
 
+  // Periodic pulse effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLivePulse(true);
+      setTimeout(() => setLivePulse(false), 1000);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const toggleWatchlist = async () => {
     if (isInWatchlist) {
       const item = watchlist.find((w) => w.symbol === symbol);
@@ -83,22 +94,22 @@ export default function StockPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse bg-muted rounded" />
-        <div className="h-[400px] animate-pulse bg-muted rounded-lg" />
+      <div className="space-y-4 max-w-5xl mx-auto p-4">
+        <div className="h-8 w-48 animate-pulse bg-muted rounded-xl" />
+        <div className="h-[340px] animate-pulse bg-muted rounded-2xl" />
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2 h-64 animate-pulse bg-muted rounded-lg" />
-          <div className="h-64 animate-pulse bg-muted rounded-lg" />
+          <div className="lg:col-span-2 h-64 animate-pulse bg-muted rounded-2xl" />
+          <div className="h-64 animate-pulse bg-muted rounded-2xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
+    <div className="space-y-6 pb-24 max-w-5xl mx-auto">
+      {/* Top Bar Navigation & Header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -110,130 +121,158 @@ export default function StockPage() {
               }
             }}
             title="Go back"
-            className="cursor-pointer"
+            className="h-9 w-9 rounded-xl hover:bg-muted cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
+
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{symbol}</h1>
+              <h1 className="text-2xl font-extrabold text-foreground font-mono">{symbol}</h1>
               {quote && (
-                <Badge variant="outline" className="text-xs">
-                  {quote.exchange}
+                <Badge variant="outline" className="text-xs font-mono">
+                  {quote.exchange || 'NASDAQ'}
                 </Badge>
               )}
+              {/* Live Ticker Pulse */}
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                <span className={`h-1.5 w-1.5 rounded-full bg-emerald-500 ${livePulse ? 'animate-ping' : ''}`} />
+                LIVE
+              </span>
             </div>
+
             {quote && (
-              <div className="flex items-center gap-3 mt-1">
-                <span className="text-3xl font-bold">
+              <div className="flex items-baseline gap-2.5 mt-0.5">
+                <span className="text-2xl sm:text-3xl font-extrabold text-foreground font-mono">
                   {formatCurrency(quote.regularMarketPrice, quote.currency)}
                 </span>
-                <div className={`flex items-center gap-1 ${getChangeColor(quote.regularMarketChange)}`}>
-                  <span className="text-lg font-semibold">
-                    {formatCurrency(Math.abs(quote.regularMarketChange), quote.currency)}
+                <div className={`flex items-center gap-1 font-mono font-bold text-sm ${getChangeColor(quote.regularMarketChange)}`}>
+                  <span>
+                    {quote.regularMarketChange >= 0 ? '+' : ''}
+                    {formatCurrency(quote.regularMarketChange, quote.currency)}
                   </span>
-                  <span className="text-sm">
-                    ({formatPercent(quote.regularMarketChangePercent)})
-                  </span>
+                  <span>({formatPercent(quote.regularMarketChangePercent)})</span>
                 </div>
               </div>
             )}
+
             {quote && (
-              <div className="flex gap-4 mt-1 text-xs text-muted-foreground">
-                <span>{quote.shortName}</span>
-                <span>Vol: {formatLargeNumber(quote.regularMarketVolume)}</span>
-                <span>52W: {formatCurrency(quote.fiftyTwoWeekLow, quote.currency)} - {formatCurrency(quote.fiftyTwoWeekHigh, quote.currency)}</span>
-              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-sm">
+                {quote.shortName || symbol} · Vol: {formatLargeNumber(quote.regularMarketVolume)}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             variant={isInWatchlist ? 'default' : 'outline'}
             size="sm"
             onClick={toggleWatchlist}
-            className="gap-1"
+            className="h-9 text-xs font-bold gap-1.5 rounded-xl cursor-pointer"
           >
-            <Star className={`h-4 w-4 ${isInWatchlist ? 'fill-current' : ''}`} />
-            {isInWatchlist ? t('watchlist.remove') : t('watchlist.add')}
+            <Star className={`h-4 w-4 ${isInWatchlist ? 'fill-current text-amber-400' : ''}`} />
+            <span>{isInWatchlist ? 'In Watchlist' : 'Add Watchlist'}</span>
           </Button>
         </div>
       </div>
 
-      {/* Chart + 3 Pillars of Analysis */}
-      <div className="space-y-6">
-        {/* Main interactive candlestick chart */}
-        {history.length > 0 && (
-          <div className="rounded-xl border bg-card/60 p-4 shadow-xs">
+      {/* Main Chart */}
+      {history.length > 0 && (
+        <div className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-md space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Price Chart ({timeframe})
+            </h3>
+            {/* Timeframe selector */}
+            <div className="flex items-center gap-1 p-1 bg-muted/60 rounded-xl border border-border/40 text-[11px] font-bold">
+              {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((tf) => (
+                <button
+                  key={tf}
+                  type="button"
+                  onClick={() => setTimeframe(tf as any)}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    timeframe === tf
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-[280px] sm:h-[340px]">
             <CandlestickChart data={history} symbol={symbol} />
           </div>
-        )}
-
-        {/* 3 Pillars Section Header */}
-        <div className="border-b border-border/40 pb-2">
-          <h2 className="text-lg font-bold tracking-tight text-foreground">
-            3-Pillar Investment Analysis: Technical, Fundamental & Macro
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Multi-factor evaluation model combining price action, financial health, and global catalysts.
-          </p>
         </div>
+      )}
 
-        {/* 3 Pillars Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Pillar 1: Technical Analysis */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
-              <span>📐 Pillar 1: Technical Signals</span>
-            </div>
+      {/* Advanced Technical Indicators Accordion */}
+      <div className="border border-border/70 rounded-3xl overflow-hidden bg-card shadow-xs">
+        <button
+          type="button"
+          onClick={() => setShowAdvancedIndicators(!showAdvancedIndicators)}
+          className="flex items-center justify-between w-full p-4 hover:bg-muted/40 transition-colors text-left cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 text-emerald-400" />
+            <span className="text-sm font-bold text-foreground">Advanced Technical Indicators (RSI, MACD, Bollinger)</span>
+          </div>
+          {showAdvancedIndicators ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </button>
+
+        {showAdvancedIndicators && (
+          <div className="p-4 pt-0 border-t border-border/40 space-y-3 animate-in fade-in-0">
             {signals ? (
               <TechnicalSummary signals={signals} />
             ) : (
-              <div className="p-6 rounded-xl border text-center text-xs text-muted-foreground">
-                Calculating technical indicators...
-              </div>
+              <p className="text-xs text-muted-foreground text-center py-3">Calculating technical metrics...</p>
             )}
-          </div>
-
-          {/* Pillar 2: Fundamental Health & Valuation */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-400">
-              <span>💼 Pillar 2: Financial Health & Ratios</span>
-            </div>
-            {fundamentals ? (
-              <FundamentalCard fundamentals={fundamentals} />
-            ) : (
-              <div className="p-6 rounded-xl border text-center text-xs text-muted-foreground">
-                Loading financial fundamentals...
-              </div>
-            )}
-          </div>
-
-          {/* Pillar 3: Macro Trends, Analyst Targets & Catalysts */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
-              <span>🌐 Pillar 3: Macro & Analyst Consensus</span>
-            </div>
-            <MacroAnalystCard symbol={symbol} quote={quote} fundamentals={fundamentals} />
-          </div>
-        </div>
-
-        {/* Comparison chart with S&P 500 benchmark */}
-        {history.length > 0 && benchmarkHistory.length > 0 && (
-          <div className="rounded-xl border bg-card/60 p-4 shadow-xs">
-            <h3 className="text-sm font-semibold mb-3 text-foreground">
-              Benchmark Relative Performance vs S&P 500 (SPY)
-            </h3>
-            <ComparisonChart
-              stockData={history}
-              benchmarkData={benchmarkHistory}
-              symbol={symbol}
-              benchmarkSymbol="SPY"
-            />
           </div>
         )}
       </div>
+
+      {/* 3 Pillars Grid: Fundamentals & Macro */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* Pillar 1: Fundamentals */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-wider">
+            <span>💼 Financial Ratios & Valuation</span>
+          </div>
+          {fundamentals ? (
+            <FundamentalCard fundamentals={fundamentals} />
+          ) : (
+            <div className="p-6 rounded-2xl border text-center text-xs text-muted-foreground">
+              Financial data compiled from SEC & European corporate filings.
+            </div>
+          )}
+        </div>
+
+        {/* Pillar 2: Macro & Analysts */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
+            <span>🌐 Institutional Consensus & Global Catalysts</span>
+          </div>
+          <MacroAnalystCard symbol={symbol} quote={quote} fundamentals={fundamentals} />
+        </div>
+      </div>
+
+      {/* Benchmark Relative Performance */}
+      {history.length > 0 && benchmarkHistory.length > 0 && (
+        <div className="rounded-3xl border border-border/80 bg-card p-5 shadow-md">
+          <h3 className="text-sm font-bold mb-3 text-foreground">
+            Benchmark Relative Performance vs S&P 500 (SPY)
+          </h3>
+          <ComparisonChart
+            stockData={history}
+            benchmarkData={benchmarkHistory}
+            symbol={symbol}
+            benchmarkSymbol="SPY"
+          />
+        </div>
+      )}
     </div>
   );
 }

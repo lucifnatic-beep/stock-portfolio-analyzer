@@ -36,11 +36,11 @@ export function MacroAnalystCard({ symbol, quote, fundamentals }: Props) {
   } else if (sector.includes('Energy') || sector.includes('Utilities')) {
     macroTopic = 'Energy Transition & High Cash Flow Dividends';
     macroSummary = 'Resilient commodity pricing and disciplined capital allocation generate reliable shareholder payouts.';
-    macroSource = 'Bloomberg Energy / Ziarul Financiar';
+    macroSource = 'Bloomberg Energy / Reuters Commodity Desk';
   } else if (sector.includes('Financial')) {
     macroTopic = 'Central Bank Interest Rate Dynamics';
     macroSummary = 'Healthy net interest margins and robust loan books support capital returns and dividend growth.';
-    macroSource = 'Financial Times / BVB Market Watch';
+    macroSource = 'Financial Times / Wall Street Journal Markets';
   } else if (sector.includes('Healthcare')) {
     macroTopic = 'Demographic Tailwinds & Patent Pipeline';
     macroSummary = 'Defensive revenue profile with continuous innovation and expanding global access.';

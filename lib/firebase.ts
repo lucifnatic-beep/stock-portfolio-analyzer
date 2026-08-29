@@ -39,6 +39,7 @@ export {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   firebaseSignOut,
+  firebaseSignOut as signOut,
   onAuthStateChanged,
   type User,
 };

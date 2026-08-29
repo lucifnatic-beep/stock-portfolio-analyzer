@@ -1,20 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Globe, Download, Upload, Shield, FileText, Sparkles, Trash2, User, AlertTriangle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Globe,
+  Download,
+  Upload,
+  Shield,
+  FileText,
+  Sparkles,
+  Trash2,
+  User,
+  AlertTriangle,
+  Moon,
+  Sun,
+  Laptop,
+  Zap,
+  Activity,
+  LogOut,
+  LogIn,
+  CheckCircle2,
+  Sliders,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { PriceAlertManager } from '@/components/alerts/price-alert-manager';
-import { UserAuthButton } from '@/components/auth/user-auth-button';
+import { AuthModal } from '@/components/auth/auth-modal';
 import { useAppStore } from '@/stores/app-store';
 import { db } from '@/lib/db';
+import { auth, onAuthStateChanged, signOut, type User as FirebaseUser } from '@/lib/firebase';
+import { useTheme } from 'next-themes';
 
-export default function AlertsAndProfilePage() {
+export default function ProfileAndPreferencesPage() {
   const { baseCurrency, setBaseCurrency } = useAppStore();
+  const { theme, setTheme } = useTheme();
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [localEmail, setLocalEmail] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmDemoOpen, setConfirmDemoOpen] = useState(false);
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState('30');
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    const stored = localStorage.getItem('stockpulse_local_user');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setLocalEmail(parsed.email || null);
+      } catch {}
+    }
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    localStorage.removeItem('stockpulse_local_user');
+    setLocalEmail(null);
+    setCurrentUser(null);
+  };
 
   const handleExport = async () => {
     const positions = await db.positions.toArray();
@@ -68,7 +117,7 @@ export default function AlertsAndProfilePage() {
         }
         window.location.reload();
       } catch {
-        alert('Error importing file.');
+        alert('Error importing backup JSON file.');
       }
     };
     input.click();
@@ -88,51 +137,205 @@ export default function AlertsAndProfilePage() {
     window.location.reload();
   };
 
+  const userDisplayName = currentUser?.displayName || currentUser?.email || localEmail || 'Guest Investor';
+  const userInitial = userDisplayName ? userDisplayName[0].toUpperCase() : 'G';
+  const isUserLoggedIn = Boolean(currentUser || localEmail);
+
   return (
-    <div className="space-y-6 pb-20 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/40 pb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-            <User className="h-6 w-6" />
+    <div className="space-y-6 pb-24 max-w-3xl mx-auto">
+      {/* Auth Modal */}
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+
+      {/* Profile Header */}
+      <div className="p-5 rounded-3xl bg-gradient-to-br from-card via-card to-muted/40 border border-border/80 shadow-md">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-indigo-500/20 to-purple-500/10 border-2 border-emerald-500/40 text-emerald-400 font-extrabold text-xl flex items-center justify-center shadow-md shadow-emerald-500/10">
+              {userInitial}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                  {userDisplayName}
+                </h1>
+                {isUserLoggedIn ? (
+                  <Badge variant="outline" className="text-[10px] font-bold px-1.5 py-0 border-emerald-500/40 text-emerald-400 bg-emerald-500/10">
+                    Active
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-[10px] font-mono">
+                    Local Device
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {currentUser?.email || (localEmail ? `Local Account: ${localEmail}` : 'StockPulse AI v1.0.0 · Local-First')}
+              </p>
+            </div>
           </div>
+
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Account & Preferences</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Manage your profile, price alerts, currency, and local backups.
-            </p>
+            {isUserLoggedIn ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-border/70 hover:text-red-400 hover:border-red-500/40 cursor-pointer"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Sign Out</span>
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => setAuthModalOpen(true)}
+                className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-xs gap-1.5 cursor-pointer"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                <span>Sign In / Sync</span>
+              </Button>
+            )}
           </div>
         </div>
-        <UserAuthButton />
       </div>
 
-      {/* Currency Switcher */}
-      <Card className="border-border/70 shadow-xs">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Globe className="h-4 w-4 text-emerald-400" />
-            Display Currency
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xs text-muted-foreground mb-3">
-            All positions and portfolio values will be automatically converted using live ECB foreign exchange rates.
-          </p>
-          <div className="grid grid-cols-3 gap-2 max-w-md">
-            {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
+      {/* Preferences Grid */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Display Currency */}
+        <Card className="border-border/70 shadow-xs">
+          <CardHeader className="pb-2.5">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Globe className="h-4 w-4 text-emerald-400" />
+              Display Currency
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Converts US & EU stocks using live ECB FX rates.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted/60 rounded-2xl border border-border/50">
+              {(['USD', 'EUR', 'GBP'] as const).map((curr) => (
+                <button
+                  key={curr}
+                  type="button"
+                  onClick={() => setBaseCurrency(curr)}
+                  className={`py-2 rounded-xl font-bold text-xs transition-all cursor-pointer select-none active:scale-95 ${
+                    baseCurrency === curr
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
+                  }`}
+                >
+                  {curr}
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Theme Appearance */}
+        <Card className="border-border/70 shadow-xs">
+          <CardHeader className="pb-2.5">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Moon className="h-4 w-4 text-indigo-400" />
+              Theme Appearance
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Dark, Light or System Mode.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted/60 rounded-2xl border border-border/50">
               <button
-                key={curr}
                 type="button"
-                onClick={() => setBaseCurrency(curr)}
-                className={`py-2 rounded-xl font-bold text-xs transition-all cursor-pointer border ${
-                  baseCurrency === curr
-                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground hover:text-foreground border-border/50'
+                onClick={() => setTheme('dark')}
+                className={`py-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-background text-foreground shadow-xs border border-border/60'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {curr}
+                <Moon className="h-3.5 w-3.5" />
+                <span>Dark</span>
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={() => setTheme('light')}
+                className={`py-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-background text-foreground shadow-xs border border-border/60'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Sun className="h-3.5 w-3.5" />
+                <span>Light</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme('system')}
+                className={`py-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  theme === 'system'
+                    ? 'bg-background text-foreground shadow-xs border border-border/60'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Laptop className="h-3.5 w-3.5" />
+                <span>System</span>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Live Market Feeds & Engine Settings */}
+      <Card className="border-border/70 shadow-xs">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
+            <Activity className="h-4 w-4 text-emerald-400" />
+            Market Engine & Live Feeds
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between py-1 border-b border-border/40">
+            <div>
+              <p className="text-xs font-semibold text-foreground">Quote Refresh Interval</p>
+              <p className="text-[11px] text-muted-foreground">Background price sync frequency for NASDAQ & European markets</p>
+            </div>
+            <div className="flex gap-1 bg-muted/60 p-1 rounded-xl border border-border/50 text-xs">
+              {['15s', '30s', '60s'].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setRefreshInterval(val)}
+                  className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                    refreshInterval === val
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between py-1">
+            <div>
+              <p className="text-xs font-semibold text-foreground">Tactile Animations</p>
+              <p className="text-[11px] text-muted-foreground">Smooth button presses and chart micro-interactions</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHapticsEnabled(!hapticsEnabled)}
+              className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+                hapticsEnabled ? 'bg-emerald-500' : 'bg-muted border border-border'
+              }`}
+            >
+              <span
+                className={`block h-4 w-4 rounded-full bg-white transition-transform ${
+                  hapticsEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -143,21 +346,20 @@ export default function AlertsAndProfilePage() {
       {/* Data Management & Backups */}
       <Card className="border-border/70 shadow-xs">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-sm font-bold flex items-center gap-2">
             <Shield className="h-4 w-4 text-emerald-400" />
             Data Management & Backups
           </CardTitle>
+          <CardDescription className="text-xs">
+            StockPulse AI is local-first. Your holdings and watchlists are stored securely inside your device.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground">
-            StockPulse AI is local-first. Your holdings are stored securely inside your phone. You can export a snapshot backup or restore on any device.
-          </p>
-
+        <CardContent className="space-y-3.5">
           <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               variant="outline"
               size="sm"
-              className="text-xs font-semibold gap-2 rounded-xl"
+              className="text-xs font-semibold gap-2 rounded-xl border-border/70"
               onClick={handleExport}
             >
               <Download className="h-4 w-4 text-emerald-400" />
@@ -167,7 +369,7 @@ export default function AlertsAndProfilePage() {
             <Button
               variant="outline"
               size="sm"
-              className="text-xs font-semibold gap-2 rounded-xl"
+              className="text-xs font-semibold gap-2 rounded-xl border-border/70"
               onClick={handleImport}
             >
               <Upload className="h-4 w-4 text-indigo-400" />
@@ -209,7 +411,7 @@ export default function AlertsAndProfilePage() {
             <span>Terms of Service</span>
           </Link>
         </div>
-        <span>StockPulse AI v1.0.0</span>
+        <span className="font-mono">StockPulse AI v1.0.0</span>
       </div>
 
       {/* Dialog: Confirm Demo Portfolio */}
@@ -221,7 +423,7 @@ export default function AlertsAndProfilePage() {
               Load Demo Portfolio?
             </DialogTitle>
             <DialogDescription>
-              This will populate your portfolio with starter US & European blue-chip stocks (NVDA, AAPL, ASML, SAP, etc.) for testing.
+              Populate portfolio with US & European blue-chips (NVDA, AAPL, ASML, SAP, SPY, VWCE) for testing.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -244,7 +446,7 @@ export default function AlertsAndProfilePage() {
               Clear All Data?
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete all local positions, watchlists, and price alerts? This action cannot be undone.
+              Are you sure you want to delete all local positions, watchlists, and price alerts?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

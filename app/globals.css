@@ -4,32 +4,34 @@
 
 /* Mobile touch optimization for Android WebView & iOS (Robinhood/T212 native feel) */
 html, body {
-  touch-action: pan-y;
+  touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden !important;
   max-width: 100vw;
   width: 100%;
   overscroll-behavior-x: none;
-  overscroll-behavior-y: auto;
-  scroll-behavior: smooth;
+  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-/* Smooth transitions globally */
+/* Smooth transitions & tactile touch feedback globally */
 * {
   -webkit-tap-highlight-color: transparent;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
 
-/* Optimize rendering performance */
+/* Fast GPU accelerated button touch feedback */
 a, button {
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease;
   -webkit-touch-callout: none;
 }
 
-button:active {
-  transform: scale(0.97);
+button:active, a:active {
+  transform: scale(0.96) !important;
+  opacity: 0.85;
 }
 
 *::-webkit-scrollbar {
