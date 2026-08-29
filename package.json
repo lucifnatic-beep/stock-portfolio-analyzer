@@ -12,6 +12,7 @@
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@google/genai": "^2.19.0",
     "@tanstack/react-table": "^9.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
