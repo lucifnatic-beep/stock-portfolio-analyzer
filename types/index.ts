@@ -78,6 +78,7 @@ export interface Broker {
 
 export const DEFAULT_BROKERS: Broker[] = [
   { id: 'all', name: 'All Portfolios', color: '#6366f1' },
+  { id: 'robinhood', name: 'Robinhood', color: '#00c805', cash: 0, cashCurrency: 'USD' },
   { id: 't212', name: 'Trading 212', color: '#3b82f6', cash: 0, cashCurrency: 'USD' },
   { id: 'ibkr', name: 'Interactive Brokers', color: '#dc2626', cash: 0, cashCurrency: 'USD' },
   { id: 'revolut', name: 'Revolut', color: '#06b6d4', cash: 0, cashCurrency: 'USD' },

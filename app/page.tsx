@@ -10,6 +10,7 @@ import { HoldingsTable } from '@/components/portfolio/holdings-table';
 import { AddPositionDialog } from '@/components/portfolio/add-position-dialog';
 import { T212ImportDialog } from '@/components/portfolio/t212-import-dialog';
 import { CSVImportDialog } from '@/components/portfolio/csv-import-dialog';
+import { RobinhoodConnectorDialog } from '@/components/portfolio/robinhood-connector-dialog';
 import { BrokerTabs } from '@/components/portfolio/broker-tabs';
 import { AllocationChart } from '@/components/portfolio/allocation-chart';
 import { WatchlistPanel } from '@/components/watchlist/watchlist-panel';
@@ -185,10 +186,11 @@ export default function DashboardPage() {
 
         {/* Import tools — hidden by default (T212 pattern: progressive disclosure) */}
         {showImportTools && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 animate-in fade-in-0 slide-in-from-top-2">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 animate-in fade-in-0 slide-in-from-top-2 flex-wrap">
+            <RobinhoodConnectorDialog onImportSuccess={fetchQuotes} />
             <T212ImportDialog onImportSuccess={fetchQuotes} />
             <CSVImportDialog onImportSuccess={fetchQuotes} />
-            <span className="text-[10px] text-muted-foreground ml-auto">Import from broker CSV exports</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">Import from Robinhood, Trading 212 or broker CSV</span>
           </div>
         )}
 
