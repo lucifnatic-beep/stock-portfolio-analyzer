@@ -78,11 +78,17 @@ export interface Broker {
 
 export const DEFAULT_BROKERS: Broker[] = [
   { id: 'all', name: 'All Portfolios', color: '#6366f1' },
-  { id: 'robinhood', name: 'Robinhood', color: '#00c805', cash: 0, cashCurrency: 'USD' },
-  { id: 't212', name: 'Trading 212', color: '#3b82f6', cash: 0, cashCurrency: 'USD' },
-  { id: 'ibkr', name: 'Interactive Brokers', color: '#dc2626', cash: 0, cashCurrency: 'USD' },
-  { id: 'revolut', name: 'Revolut', color: '#06b6d4', cash: 0, cashCurrency: 'USD' },
-  { id: 'degiro', name: 'Degiro', color: '#f59e0b', cash: 0, cashCurrency: 'EUR' },
+  { id: 'robinhood', name: 'Robinhood (US)', color: '#00c805', cash: 0, cashCurrency: 'USD' },
+  { id: 't212', name: 'Trading 212 (UK/EU)', color: '#3b82f6', cash: 0, cashCurrency: 'USD' },
+  { id: 'ibkr', name: 'Interactive Brokers (Global)', color: '#dc2626', cash: 0, cashCurrency: 'USD' },
+  { id: 'schwab', name: 'Charles Schwab (US)', color: '#00a0df', cash: 0, cashCurrency: 'USD' },
+  { id: 'fidelity', name: 'Fidelity (US)', color: '#338c35', cash: 0, cashCurrency: 'USD' },
+  { id: 'revolut', name: 'Revolut (EU/UK)', color: '#06b6d4', cash: 0, cashCurrency: 'USD' },
+  { id: 'degiro', name: 'Degiro (EU)', color: '#f59e0b', cash: 0, cashCurrency: 'EUR' },
+  { id: 'xtb', name: 'XTB (EU)', color: '#ff4d4f', cash: 0, cashCurrency: 'EUR' },
+  { id: 'traderepublic', name: 'Trade Republic (EU)', color: '#000000', cash: 0, cashCurrency: 'EUR' },
+  { id: 'scalable', name: 'Scalable Capital (DE)', color: '#10b981', cash: 0, cashCurrency: 'EUR' },
+  { id: 'saxo', name: 'Saxo Bank (EU)', color: '#1e3a8a', cash: 0, cashCurrency: 'EUR' },
 ];
 
 // Portfolio Types

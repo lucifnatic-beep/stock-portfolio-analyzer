@@ -9,8 +9,8 @@ import { PortfolioSummary } from '@/components/portfolio/portfolio-summary';
 import { HoldingsTable } from '@/components/portfolio/holdings-table';
 import { AddPositionDialog } from '@/components/portfolio/add-position-dialog';
 import { T212ImportDialog } from '@/components/portfolio/t212-import-dialog';
-import { CSVImportDialog } from '@/components/portfolio/csv-import-dialog';
 import { RobinhoodConnectorDialog } from '@/components/portfolio/robinhood-connector-dialog';
+import { CSVImportDialog } from '@/components/portfolio/csv-import-dialog';
 import { BrokerTabs } from '@/components/portfolio/broker-tabs';
 import { AllocationChart } from '@/components/portfolio/allocation-chart';
 import { WatchlistPanel } from '@/components/watchlist/watchlist-panel';
@@ -22,7 +22,7 @@ import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from '@/lib/i18n';
 import { deduplicateAndSeedPortfolio } from '@/lib/seed';
 import { DEFAULT_BROKERS, type PositionWithQuote, type StockQuote, type Broker } from '@/types';
-import { Compass, Plus, MoreHorizontal } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export default function DashboardPage() {
   const { locale, baseCurrency, activeBroker } = useAppStore();
@@ -33,26 +33,11 @@ export default function DashboardPage() {
   const [fxRates, setFxRates] = useState<Record<string, number>>(DEFAULT_FX_RATES);
   const [loading, setLoading] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [showImportTools, setShowImportTools] = useState(false);
 
   // Auto seed and clean legacy data
   useEffect(() => {
     deduplicateAndSeedPortfolio();
   }, []);
-
-  // Auto-show auth on first launch if no positions
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (allDbPositions.length === 0) {
-        const hasSeenAuth = sessionStorage.getItem('stockpulse_auth_seen');
-        if (!hasSeenAuth) {
-          setShowAuth(true);
-          sessionStorage.setItem('stockpulse_auth_seen', '1');
-        }
-      }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [allDbPositions.length]);
 
   // Filter by broker
   const filteredPositions = useMemo(() => {
@@ -150,12 +135,12 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* Auth Modal — Full screen onboarding */}
+      {/* Auth Modal (Only opened on explicit click or profile view) */}
       <AuthModal open={showAuth} onOpenChange={setShowAuth} />
 
       <div className="space-y-5 sm:space-y-6 pb-8 w-full max-w-full min-w-0">
-        {/* Clean Header — Robinhood style */}
-        <div className="flex items-center justify-between gap-3">
+        {/* Header with clear Quick Actions */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t('portfolio.title')}</h1>
             <p className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
@@ -164,37 +149,23 @@ export default function DashboardPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                 </span>
-                Live
+                Live Sync
               </span>
               <span>·</span>
-              <span>{filteredPositions.length} positions</span>
+              <span>{filteredPositions.length} active positions</span>
             </p>
           </div>
 
-          {/* Action buttons — clean, minimal */}
-          <div className="flex items-center gap-1.5">
+          {/* Prominent, Clearly Visible Action Buttons */}
+          <div className="flex items-center gap-2 flex-wrap">
             <AddPositionDialog />
-            <button
-              onClick={() => setShowImportTools(!showImportTools)}
-              className="p-2 rounded-xl bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-all active:scale-95"
-              title="Import tools"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
+            <T212ImportDialog onImportSuccess={fetchQuotes} />
+            <RobinhoodConnectorDialog onImportSuccess={fetchQuotes} />
+            <CSVImportDialog onImportSuccess={fetchQuotes} />
           </div>
         </div>
 
-        {/* Import tools — hidden by default (T212 pattern: progressive disclosure) */}
-        {showImportTools && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 animate-in fade-in-0 slide-in-from-top-2 flex-wrap">
-            <RobinhoodConnectorDialog onImportSuccess={fetchQuotes} />
-            <T212ImportDialog onImportSuccess={fetchQuotes} />
-            <CSVImportDialog onImportSuccess={fetchQuotes} />
-            <span className="text-[10px] text-muted-foreground ml-auto">Import from Robinhood, Trading 212 or broker CSV</span>
-          </div>
-        )}
-
-        {/* Broker Tabs */}
+        {/* Broker Tabs (Only shows All + active brokers with positions/cash) */}
         <div className="w-full min-w-0">
           <BrokerTabs />
         </div>
@@ -233,7 +204,7 @@ export default function DashboardPage() {
                 </span>
               </h3>
               <p className="text-[11px] text-muted-foreground">
-                Multi-factor analysis: technicals, fundamentals, analyst targets, and macro.
+                Multi-factor analysis across US and European markets.
               </p>
             </div>
           </div>
