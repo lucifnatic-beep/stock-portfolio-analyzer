@@ -69,7 +69,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[env(safe-area-inset-top,0px)]">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-[max(env(safe-area-inset-top,0px),1.75rem)] sm:pt-0">
         <div className="flex h-14 items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 max-w-full">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={toggleSidebar} title="Toggle sidebar" className="h-9 w-9">

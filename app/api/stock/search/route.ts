@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchStocks } from '@/lib/yahoo';
 
-// Common typo corrections
+// Common typo corrections & colloquial names
 const TYPO_MAP: Record<string, string> = {
   'aple': 'apple', 'appl': 'apple', 'appple': 'apple',
   'nvidea': 'nvidia', 'nvida': 'nvidia', 'nviida': 'nvidia',
@@ -16,6 +16,16 @@ const TYPO_MAP: Record<string, string> = {
   'novo': 'novo nordisk', 'novonordisk': 'novo nordisk',
   'ferari': 'ferrari', 'ferarri': 'ferrari',
   'rokketlab': 'rocketlab', 'rocketlb': 'rocketlab',
+  'protect and gamble': 'pg', 'protect & gamble': 'pg', 'proctor and gamble': 'pg',
+  'proctor & gamble': 'pg', 'procter and gamble': 'pg', 'procter & gamble': 'pg',
+  'proctor': 'pg', 'procter': 'pg', 'gamble': 'pg', 'p&g': 'pg',
+  'coca cola': 'ko', 'cocacola': 'ko', 'coke': 'ko',
+  'pepsi': 'pep', 'pepsico': 'pep',
+  'mcdonalds': 'mcd', 'mcdonald': 'mcd',
+  'johnson and johnson': 'jnj', 'johnson & johnson': 'jnj', 'j&j': 'jnj',
+  'visa': 'v', 'mastercard': 'ma', 'jpmorgan': 'jpm', 'jp morgan': 'jpm',
+  'berkshire': 'brk-b', 'buffet': 'brk-b', 'buffett': 'brk-b',
+  'broadcom': 'avgo', 'qualcomm': 'qcom', 'intel': 'intc',
 };
 
 // Exchange display name mapping

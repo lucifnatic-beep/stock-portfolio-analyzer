@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from './providers';
 import { Header } from '@/components/layout/header';
 import { MainLayout } from '@/components/layout/main-layout';
+import { SplashScreen } from '@/components/layout/splash-screen';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-sans' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-mono' });
@@ -37,6 +38,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${spaceGrotesk.variable} font-sans`}>
         <Providers>
+          <SplashScreen />
           <Header />
           <MainLayout>{children}</MainLayout>
         </Providers>
